@@ -2,7 +2,7 @@
 		This is a script that can be used to kill multiple sessions
 	on a SQL Server isntance, while also providing the ability to 
 	target sessions based on specific filters.
-	For more info visit: 
+	For more info visit: https://vladdba.com/2021/03/02/t-sql-script-to-kill-multiple-sql-server-sessions-in-one-go/
 	*/
 USE [master]
 GO
