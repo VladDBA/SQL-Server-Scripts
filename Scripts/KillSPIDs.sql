@@ -9,22 +9,22 @@ GO
 
 		/* Variable declaration */
 DECLARE  @SPID				SMALLINT
-		,@ExecSQL			VARCHAR(11)
-		,@Confirm			BIT
-		,@ForLogin			NVARCHAR(128)
-		,@SPIDState			VARCHAR(1)
-		,@OmitLogin			NVARCHAR(128)
+		,@ExecSQL		VARCHAR(11)
+		,@Confirm		BIT
+		,@ForLogin		NVARCHAR(128)
+		,@SPIDState		VARCHAR(1)
+		,@OmitLogin		NVARCHAR(128)
 		,@ForDatabase		NVARCHAR(128)
 		,@ReqOlderThanMin	INT;
 
 		/* Filters */
-SET @Confirm			= 0;	/* Just a precaution to make sure you've set the right filters before running this, switch to 1 to execute */
-SET @ForLogin			= N'';	/* Only kill SPIDs belonging to this login, empty string = all logins */
-SET @SPIDState			= '';	/* S = only kill sleeping SPIDs, R = only kill running SPIDs, empty string = kill SPIDs regardless of state*/
-SET @OmitLogin			= N'';	/* Kill all SPIDs except the login name specified here, epty string = omit none */
-SET @ForDatabase		= N'';	/* Kill only SPIDs hitting this database, empty string = all databases */
+SET @Confirm		= 0;	/* Just a precaution to make sure you've set the right filters before running this, switch to 1 to execute */
+SET @ForLogin		= N'';	/* Only kill SPIDs belonging to this login, empty string = all logins */
+SET @SPIDState		= '';	/* S = only kill sleeping SPIDs, R = only kill running SPIDs, empty string = kill SPIDs regardless of state */
+SET @OmitLogin		= N'';	/* Kill all SPIDs except the login name specified here, epty string = omit none */
+SET @ForDatabase	= N'';	/* Kill only SPIDs hitting this database, empty string = all databases */
 SET @ReqOlderThanMin	= 0;	/* Kill SPIDs whose last request start time is older than or equal to the value specified (in minutes),
-									0 = the moment this query is executed*/
+					0 = the moment this query is executed */
 
 IF (@Confirm = 0)
 BEGIN 
