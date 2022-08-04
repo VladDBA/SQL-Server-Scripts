@@ -2,19 +2,25 @@
 	Script to find databases owned by a specific 
 	user and change ownership to sa or another user
 */
+USE [master]
+GO
+
+		/* Variable declaration */
 DECLARE @ExecSQL      VARCHAR(1000),
         @OldOwner     VARCHAR(128),
         @NewOwner     VARCHAR(128),
         @DatabaseName VARCHAR(128);
 
+
 SET @OldOwner = 'OldUserName'; /*Change this*/
 SET @NewOwner = 'sa'; /*Change this if needed*/
 
+
 DECLARE ChangeDBOwner CURSOR LOCAL STATIC READ_ONLY FORWARD_ONLY FOR
-  SELECT DISTINCT '[' + db.name + ']'
-  FROM   sys.databases db
-         LEFT JOIN sys.server_principals sp
-                ON db.owner_sid = sp.sid
+  SELECT DISTINCT '[' + [db].[name] + ']'
+  FROM   [master].[sys].[databases] [db]
+         LEFT JOIN [master].[sys].[server_principals] AS [sp]
+                ON [db].[owner_sid] = [sp].[sid]
   WHERE
     sp.name = @OldOwner;
 
