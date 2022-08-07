@@ -9,4 +9,4 @@ SELECT @UID =LOWER(CONVERT(VARCHAR(100), CAST(HASHBYTES('MD5',
                                         , 21))
                                                AS
                                                      UNIQUEIDENTIFIER)));
-SELECT @UID AS [msprop:design-time-name], N'G'+@UID AS [Attribute ID];
+SELECT @UID AS [msprop:design-time-name], 'G'+@UID AS [Attribute ID];
