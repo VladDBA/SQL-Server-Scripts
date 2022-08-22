@@ -3,7 +3,8 @@
 		Run it in the context of the database for which you want to see stats data
 */
 
-SELECT SCHEMA_NAME([obj].[schema_id]) + '.' 
+SELECT DB_NAME() AS [database],
+	   SCHEMA_NAME([obj].[schema_id]) + '.' 
 	   + OBJECT_NAME([stat].[object_id])		AS [table_name],
        [stat].[name]							AS [stats_name],
 	   CASE 
@@ -42,7 +43,8 @@ WHERE
   AND [stat].[is_incremental] = 0	/*limit to non-incremental stats only */
   AND [sp].[rows] >= 1000			/*only get tables with 1k rows or more*/
 UNION 
-SELECT SCHEMA_NAME([obj].[schema_id]) + '.' 
+SELECT DB_NAME() AS [database],
+	   SCHEMA_NAME([obj].[schema_id]) + '.' 
 		+ OBJECT_NAME([stat].[object_id])		AS [table_name],
        [stat].[name] AS [stats_name],
 	   CASE 
