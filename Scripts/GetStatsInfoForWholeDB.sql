@@ -1,6 +1,6 @@
 /*
-Get statistics data for tables and indexed views with 1k+ records
-Run it in the context of the database for which you want to see stats data
+		Get statistics data for tables and indexed views with 1k+ records
+		Run it in the context of the database for which you want to see stats data
 */
 
 SELECT SCHEMA_NAME([obj].[schema_id]) + '.' 
