@@ -5,7 +5,8 @@
 
 SELECT DB_NAME() AS [database],
 	   SCHEMA_NAME([obj].[schema_id]) + '.' 
-	   + OBJECT_NAME([stat].[object_id])		AS [table_name],
+	   + [obj].[name]							AS [object_name],
+	   [obj].[type_desc]						AS [object_type],
        [stat].[name]							AS [stats_name],
 	   CASE 
 	   WHEN [stat].[auto_created] = 1 THEN 'Auto-Created'
@@ -45,7 +46,8 @@ WHERE
 UNION 
 SELECT DB_NAME() AS [database],
 	   SCHEMA_NAME([obj].[schema_id]) + '.' 
-		+ OBJECT_NAME([stat].[object_id])		AS [table_name],
+		+ [obj].[name]							AS [object_name],
+	   [obj].[type_desc]						AS [object_type],
        [stat].[name] AS [stats_name],
 	   CASE 
 		WHEN [stat].[auto_created] = 1 THEN 'Auto-Created'
@@ -81,4 +83,4 @@ WHERE
   [obj].[type] IN ( 'U', 'V' )		/*limit objects to tables and potentially indexed views*/
   AND [stat].[is_incremental] = 1	/*limit to incremental stats only */
   AND [sip].[rows] >= 1000			/*only get tables with 1k rows or more*/
-ORDER BY [modified_percent] DESC
+ORDER BY [modified_percent] DESC;
