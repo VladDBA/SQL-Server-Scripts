@@ -3,6 +3,7 @@
 	on a SQL Server isntance, while also providing the ability to 
 	target sessions based on specific filters.
 	For more info visit: https://vladdba.com/2021/03/02/t-sql-script-to-kill-multiple-sql-server-sessions-in-one-go/
+	https://github.com/VladDBA/SQL-Server-Scripts/blob/0a990ac2fbf633681872e95dca1d941df05c6932/LICENSE.md
 	*/
 USE [master]
 GO
