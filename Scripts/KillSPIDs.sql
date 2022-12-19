@@ -15,15 +15,20 @@ DECLARE  @SPID				SMALLINT
 		,@ForLogin		NVARCHAR(128)
 		,@SPIDState		VARCHAR(1)
 		,@OmitLogin		NVARCHAR(128)
-		,@ForDatabase		NVARCHAR(128)
+		,@ForDatabase	NVARCHAR(128)
+		,@HasOpenTran VARCHAR(1)
 		,@ReqOlderThanMin	INT;
 
 		/* Filters */
-SET @Confirm		= 0;	/* Just a precaution to make sure you've set the right filters before running this, switch to 1 to execute */
-SET @ForLogin		= N'';	/* Only kill SPIDs belonging to this login, empty string = all logins */
-SET @SPIDState		= '';	/* S = only kill sleeping SPIDs, R = only kill running SPIDs, empty string = kill SPIDs regardless of state */
-SET @OmitLogin		= N'';	/* Kill all SPIDs except the login name specified here, epty string = omit none */
-SET @ForDatabase	= N'';	/* Kill only SPIDs hitting this database, empty string = all databases */
+SET @Confirm			= 0;	/* Just a precaution to make sure you've set the right filters before running this, switch to 1 to execute */
+
+SET @ForLogin			= N'';	/* Only kill SPIDs belonging to this login, empty string = all logins */
+SET @SPIDState			= '';	/* S = only kill sleeping SPIDs, R = only kill running SPIDs, empty string = kill SPIDs regardless of state */
+SET @OmitLogin			= N'';	/* Kill all SPIDs except the login name specified here, epty string = omit none */
+SET @ForDatabase		= N'';	/* Kill only SPIDs hitting this database, empty string = all databases */
+SET @HasOpenTran		= ''   /* If set to Y will target sessions with open transactions, can be combined with @SPIDState = 'S' 
+					to target sleeping sessions with opened transactions that might be casued due to SET IMPLICIT_TRANSACTIONS ON.
+					empty string (default) = 0 open transactions*/
 SET @ReqOlderThanMin	= 0;	/* Kill SPIDs whose last request start time is older than or equal to the value specified (in minutes),
 					0 = the moment this query is executed */
 
@@ -75,7 +80,13 @@ DECLARE KillSPIDCursor CURSOR LOCAL STATIC READ_ONLY FORWARD_ONLY FOR
 										 GETDATE()
 									   WHEN @ReqOlderThanMin > 0 THEN 
 									     DATEADD(MINUTE,-@ReqOlderThanMin,GETDATE())
-									 END;
+									 END
+	AND [open_transaction_count] = CASE 
+									   WHEN @HasOpenTran = 'Y' 
+											AND [open_transaction_count] > 0
+										THEN [open_transaction_count]
+										ELSE 0
+									END;
 OPEN KillSPIDCursor;
 
 FETCH NEXT FROM KillSPIDCursor INTO @SPID;
