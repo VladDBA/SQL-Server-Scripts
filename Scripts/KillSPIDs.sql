@@ -27,7 +27,7 @@ SET @SPIDState			= '';	/* S = only kill sleeping SPIDs, R = only kill running SP
 SET @OmitLogin			= N'';	/* Kill all SPIDs except the login name specified here, epty string = omit none */
 SET @ForDatabase		= N'';	/* Kill only SPIDs hitting this database, empty string = all databases */
 SET @HasOpenTran		= ''   /* If set to Y will target sessions with open transactions, can be combined with @SPIDState = 'S' 
-					to target sleeping sessions with opened transactions that might be casued due to SET IMPLICIT_TRANSACTIONS ON.
+					to target sleeping sessions with opened transactions that might be caused by SET IMPLICIT_TRANSACTIONS ON.
 					empty string (default) = 0 open transactions*/
 SET @ReqOlderThanMin	= 0;	/* Kill SPIDs whose last request start time is older than or equal to the value specified (in minutes),
 					0 = the moment this query is executed */
