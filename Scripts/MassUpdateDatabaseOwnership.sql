@@ -14,8 +14,8 @@ DECLARE @ExecSQL      NVARCHAR(1000),
         @DatabaseName NVARCHAR(128);
 
 SET @OldOwner = N'any'; /*Change this to either a specific login name or use 
-						any to target all databases where current owner <> @NewOwner
-						*/
+			any to target all databases where current owner <> @NewOwner
+			*/
 SET @NewOwner = N'sa'; /*Change this if needed*/
 
 DECLARE ChangeDBOwner CURSOR LOCAL STATIC READ_ONLY FORWARD_ONLY FOR
