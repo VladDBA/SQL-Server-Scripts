@@ -32,11 +32,14 @@ FETCH NEXT FROM ChangeDBOwner INTO @DatabaseName;
 
 WHILE @@FETCH_STATUS = 0
   BEGIN
-      SET @ExecSQL = 'ALTER AUTHORIZATION ON DATABASE::' + @DatabaseName +
-                     ' TO '
-                     + @NewOwner + ';';
+      SET @ExecSQL = 'ALTER AUTHORIZATION ON DATABASE::[' + @DatabaseName +
+                     '] TO ['
+                     + @NewOwner + '];';
 
       EXEC (@ExecSQL);
 
       FETCH NEXT FROM ChangeDBOwner INTO @DatabaseName;
-  END; 
+  END;
+
+CLOSE ChangeDBOwner;
+DEALLOCATE ChangeDBOwner;
