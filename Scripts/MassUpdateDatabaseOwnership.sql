@@ -39,7 +39,7 @@ WHILE @@FETCH_STATUS = 0
                      + @DatabaseName + N' TO [' + @NewOwner + N'];';
 
       PRINT N'Changing ownership of '+@DatabaseName + N' to '+ @NewOwner
-	  EXEC (@ExecSQL);
+      EXEC (@ExecSQL);
 
       FETCH NEXT FROM ChangeDBOwner INTO @DatabaseName;
   END;
