@@ -8,23 +8,23 @@ USE [master]
 GO
 
 		/* Variable declaration */
-DECLARE @ExecSQL      VARCHAR(1000),
-        @OldOwner     VARCHAR(128),
-        @NewOwner     VARCHAR(128),
-        @DatabaseName VARCHAR(128);
+DECLARE @ExecSQL      NVARCHAR(1000),
+        @OldOwner     NVARCHAR(128),
+        @NewOwner     NVARCHAR(128),
+        @DatabaseName NVARCHAR(128);
 
 
-SET @OldOwner = 'OldUserName'; /*Change this*/
-SET @NewOwner = 'sa'; /*Change this if needed*/
+SET @OldOwner = N'OldUserName'; /*Change this*/
+SET @NewOwner = N'sa'; /*Change this if needed*/
 
 
 DECLARE ChangeDBOwner CURSOR LOCAL STATIC READ_ONLY FORWARD_ONLY FOR
-  SELECT DISTINCT '[' + [db].[name] + ']'
+  SELECT DISTINCT N'[' + [db].[name] + N']'
   FROM   [master].[sys].[databases] [db]
          LEFT JOIN [master].[sys].[server_principals] AS [sp]
                 ON [db].[owner_sid] = [sp].[sid]
   WHERE
-    sp.name = @OldOwner;
+    [sp].[name] = @OldOwner;
 
 OPEN ChangeDBOwner;
 
@@ -32,9 +32,9 @@ FETCH NEXT FROM ChangeDBOwner INTO @DatabaseName;
 
 WHILE @@FETCH_STATUS = 0
   BEGIN
-      SET @ExecSQL = 'ALTER AUTHORIZATION ON DATABASE::[' + @DatabaseName +
-                     '] TO ['
-                     + @NewOwner + '];';
+      SET @ExecSQL = N'ALTER AUTHORIZATION ON DATABASE::' + @DatabaseName +
+                     N' TO ['
+                     + @NewOwner + N'];';
 
       EXEC (@ExecSQL);
 
