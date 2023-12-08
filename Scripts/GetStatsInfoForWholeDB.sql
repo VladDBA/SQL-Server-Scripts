@@ -2,7 +2,7 @@
 		Get statistics data for tables and indexed views with 1k+ records
 		Run it in the context of the database for which you want to see stats data
 		From https://github.com/VladDBA/SQL-Server-Scripts/
-		License https://github.com/VladDBA/SQL-Server-Scripts/blob/0a990ac2fbf633681872e95dca1d941df05c6932/LICENSE.md
+		License https://github.com/VladDBA/SQL-Server-Scripts/blob/main/LICENSE.md
 */
 
 SELECT DB_NAME() AS [database],

@@ -2,7 +2,7 @@
 	Script to find databases owned by a specific 
 	user and change ownership to sa or another user
 	From https://github.com/VladDBA/SQL-Server-Scripts/
-	License https://github.com/VladDBA/SQL-Server-Scripts/blob/0a990ac2fbf633681872e95dca1d941df05c6932/LICENSE.md
+	License https://github.com/VladDBA/SQL-Server-Scripts/blob/main/LICENSE.md
 */
 USE [master]
 GO

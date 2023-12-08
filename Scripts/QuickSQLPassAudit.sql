@@ -1,7 +1,7 @@
 /*
 		Audit SQL Logins for weak passwords
 		From: https://github.com/VladDBA/SQL-Server-Scripts/
-		License: https://github.com/VladDBA/SQL-Server-Scripts/blob/0a990ac2fbf633681872e95dca1d941df05c6932/LICENSE.md
+		License: https://github.com/VladDBA/SQL-Server-Scripts/blob/main/LICENSE.md
 		The script relies on STRING_SPLIT so it only works on SQL Server 2016 and newer
 		More info: https://vladdba.com/2022/10/06/cracking-sql-login-passwords-online/
 */
