@@ -1,9 +1,9 @@
 /* 
-		Script to search for a string in an entire SQL Server database
-		By Vlad Drumea
-		From https://github.com/VladDBA/SQL-Server-Scripts/
-		Blog https://vladdba.com/
-		License https://github.com/VladDBA/SQL-Server-Scripts/blob/main/LICENSE.md
+	Script to search for a string in an entire SQL Server database
+	By Vlad Drumea
+	From https://github.com/VladDBA/SQL-Server-Scripts/
+	Blog https://vladdba.com/
+	License https://github.com/VladDBA/SQL-Server-Scripts/blob/main/LICENSE.md
 */
 
 SET NOCOUNT ON;
@@ -77,7 +77,7 @@ WITH QueryParts AS
             FOR XML PATH('')
           ),1,3,'') AS [WhereClause]
     FROM INFORMATION_SCHEMA.TABLES AS t
-    WHERE TABLE_TYPE='BASE TABLE'
+    WHERE t.TABLE_TYPE='BASE TABLE'
 )
 SELECT [QuotedTabName],
        [WhereClause]
