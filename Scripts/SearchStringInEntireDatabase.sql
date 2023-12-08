@@ -3,7 +3,7 @@
 		By Vlad Drumea
 		From https://github.com/VladDBA/SQL-Server-Scripts/
 		Blog https://vladdba.com/
-        License https://github.com/VladDBA/SQL-Server-Scripts/blob/main/LICENSE.md
+		License https://github.com/VladDBA/SQL-Server-Scripts/blob/main/LICENSE.md
 */
 
 SET NOCOUNT ON;
