@@ -1,9 +1,10 @@
 /* 
 	Script to search for a string in an entire SQL Server database
 	By Vlad Drumea
-	From https://github.com/VladDBA/SQL-Server-Scripts/
-	Blog https://vladdba.com/
-	License https://github.com/VladDBA/SQL-Server-Scripts/blob/main/LICENSE.md
+	From: https://github.com/VladDBA/SQL-Server-Scripts/
+	Blog: https://vladdba.com/
+  More info about this script: https://vladdba.com/2023/12/13/script-to-search-for-a-string-in-an-entire-sql-server-database/
+	License: https://github.com/VladDBA/SQL-Server-Scripts/blob/main/LICENSE.md
 */
 
 SET NOCOUNT ON;
