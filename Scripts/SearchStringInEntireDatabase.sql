@@ -12,7 +12,7 @@ SET NOCOUNT ON;
 DECLARE @SearchString  NVARCHAR(500)=N'SomeString',/*Your string goes here*/
         @UseLike       BIT = 1,/* set to 1 will do LIKE '%String%', 0 does = 'String'*/
         @IsUnicode     BIT = 1,/* set to 1 will treat the @SearchString as Unicode in the WHERE clause, 
-                                                                                             	  set to 0 will treat it as non-Unicode - recommended when dealing with (var)char or text columns*/
+                                  set to 0 will treat it as non-Unicode - recommended when dealing with (var)char or text columns*/
         @CaseSensitive BIT = 0,/*set this to 1 only if you use a case-sensitive collation and are not sure about the case of the string*/
         @SQL           NVARCHAR(MAX),
         @TableName     NVARCHAR(500),
