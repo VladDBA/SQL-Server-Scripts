@@ -3,7 +3,7 @@
 ## Intro
  This script allows the automated installation of SQL Server 2019 and 2022.
  It also patches and configures the instance based on the host's resources, allows for static TCP port confiugration, inbound firwall rules creation, and also using custom configuration scripts.
- This was created to help me speed up my home lab test environment builds, but is written to respect most production environments' standards.
+ This was created to help me speed up my home lab SQL Server builds, but it's written to respect most production environments' standards.
 
 ## Prerequisites:
  1. The script needs to be in the same folder with the SQL Server installation kit (same directory as setup.exe).
