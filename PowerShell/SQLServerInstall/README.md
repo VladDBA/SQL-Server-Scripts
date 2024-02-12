@@ -59,11 +59,11 @@
 | `-CustomScript` | Optional. Used to provide the path to a custom .sql script that does some extra post-install configuration.|
 
 ## Changelog:
- 2023-02-13 - Minor changes and moved to GitHub
- 2024-02-10 - Added firewall rules configuration and Comment-Based help
- 2023-12-31 - Added SQL Server 2022 support
- 2022-05-27 - Added static port configuration
- 2022-03-12 - Initial version of the script
+ - 2023-02-13 - Minor changes and moved to GitHub
+ - 2024-02-10 - Added firewall rules configuration and Comment-Based help
+ - 2023-12-31 - Added SQL Server 2022 support
+ - 2022-05-27 - Added static port configuration
+ - 2022-03-12 - Initial version of the script
 
 ## MIT License
  Copyright (c) 2024 Vlad Drumea
