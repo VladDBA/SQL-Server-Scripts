@@ -410,6 +410,8 @@ Write-Host $sqlcmdOut
 if(!([string]::IsNullOrEmpty($CustomScript))){
 	Write-Host " Running custom script..."
 	$sqlcmdOut = sqlcmd -S $CmdInstance -U sa -P $saPwd -i "$CustomScript" -x  2>&1 | Out-String
+	#Not cleaning up this string
+	Write-Host $sqlcmdOut
 }
 
 Write-Host " Instance configuration finished." -Fore Green
