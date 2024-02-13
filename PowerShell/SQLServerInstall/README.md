@@ -58,6 +58,22 @@
 | `-DontPatch` | Optional. Switch. When used, the script skips applying the CU patch even if the installation kit is in the CUInstallKit directory.|
 | `-CustomScript` | Optional. Used to provide the path to a custom .sql script that does some extra post-install configuration.|
 
+## Usage examples
+ 1. Install an instance named SQL2019 with the basic config, apply any CU kit that might exist in the CUInstallKit directory, using the default collation, and with `SuperStr0ngPassword` as the sa password
+     ```PowerShell
+     .\InstallSQLServer.ps1 SQL2019 -saPwd SuperStr0ngPassword
+     ```
+ 
+ 2. Install an instance named SQL2022_test, configure the instance to use static TCP port 1455, add firewall rules for it, auto configure the isntance's Max Memory parameter, and also install SSMS if it's not already installed 
+     ```PowerShell
+     .\InstallSQLServer.ps1 SQL2022_test -saPwd SuperStr0ngPassword -StaticPort 1455 -AddFirewallRules -InstallSSMS -AutoMaxMemory
+	 ```
+ 3. Install a default instance, don't apply the CU kit available in the CUInstallKit directory, use the SQL_Latin1_General_CP1_CS_AS collation, set Max Memory to 2GB, and run a custom config script.
+     ```PowerShell
+    .\InstallSQLServer.ps1 -saPwd SuperStr0ngPassword -IsDefault -MaxMemoryMB 2048 -DontPatch -CustomScript C:\temp\AdditionalConfig.sql
+	```
+ 
+
 ## Changelog:
  - 2023-02-13 - Minor changes and moved to GitHub
  - 2024-02-10 - Added firewall rules configuration and Comment-Based help
