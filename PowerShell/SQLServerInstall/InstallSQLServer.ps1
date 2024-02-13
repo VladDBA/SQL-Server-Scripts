@@ -464,7 +464,7 @@ if ($StaticPort -ne 0) {
 ##Create firewall rules if requested
 if ($AddFirewallRules) {
 	Write-Host " Adding firewall rules..."
-	Write-Host " Adding firewall rule 'SQL Server $InstanceName'."
+	Write-Host " ->Adding firewall rule 'SQL Server $InstanceName'."
 	#Get path of SQL Server executable for this instance
 	$SQLServerFWProgram = Get-WmiObject -Class win32_service -Filter "DisplayName = 'SQL Server ($InstanceName)'" | Select-object -ExpandProperty PathName
 	$SQLServerFWProgram = $SQLServerFWProgram -replace " -s$InstanceName", ""
@@ -482,11 +482,11 @@ if ($AddFirewallRules) {
 	#Check if the rule exists firts
 	try {
 		$TestRule = Get-NetFirewallRule -DisplayName "SQL Server Browser service" -ErrorAction Stop | Select-Object -ExpandProperty DisplayName -ErrorAction Stop
-		Write-Host " A firewall rule with the name 'SQL Server Browser service' already exists."
+		Write-Host " ->A firewall rule with the name 'SQL Server Browser service' already exists."
 		$BrowserRuleExists = 'Y'
 	}
 	catch {
-		Write-Host " Adding firewall rule 'SQL Server Browser service'."
+		Write-Host " ->Adding firewall rule 'SQL Server Browser service'."
 		$BrowserRuleExists = 'N'
 		#Get path of SQL Server Browser executable
 		$SQLServerBrowserFWProgram = Get-WmiObject -Class win32_service -Filter "DisplayName = 'SQL Server Browser'" | Select-object -ExpandProperty PathName
