@@ -4,6 +4,7 @@
 	  or create a dedicated database on the same storage and config that you'd want to test.
       Create date: 2024-02-28
       Author: Vlad Drumea
+	  Website: https://vladdba.com
       From: https://github.com/VladDBA/SQL-Server-Scripts/
       More info:
       License: https://github.com/VladDBA/SQL-Server-Scripts/blob/main/LICENSE.md
@@ -174,7 +175,7 @@ SELECT COUNT([Pass])                                  AS [Passes],
        AVG([duration_ms])                             AS [avg_duration_ms],
        AVG([avg_io_stall_write_ms])                   AS [avg_io_stall_write_ms],
        AVG([delta_num_of_writes])                     AS [avg_writes_per_pass],
-       AVG([delta_size_on_disk_MB])                   AS [avg_datafile_increase_MB]
+       AVG([delta_size_on_disk_MB])                   AS [avg_file_size_increase_MB]
 FROM   [IOStatsWrites]
 GROUP  BY [physical_name],
           [type_desc]
@@ -187,7 +188,7 @@ SELECT [physical_name],
        SUM([duration_ms])                             AS [total_duration_ms],
        SUM([avg_io_stall_write_ms])                   AS [total_io_stall_write_ms],
        SUM([delta_num_of_writes])                     AS [total_writes],
-       SUM([delta_size_on_disk_MB])                   AS [total_datafile_increase_MB]
+       SUM([delta_size_on_disk_MB])                   AS [total_file_size_increase_MB]
 FROM   [IOStatsWrites]
 GROUP  BY [physical_name],
           [type_desc]
