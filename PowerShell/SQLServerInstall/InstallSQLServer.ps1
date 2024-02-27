@@ -309,15 +309,15 @@ if (!(Test-Path C:\Temp)) {
 }
 #Get physical core count
 try {
-	[string]$CoreCount = ( (Get-CimInstance -ClassName Win32_Processor).NumberOfCores | Measure-Object -Sum).Sum
+	[int]$CoreCount = ( (Get-CimInstance -ClassName Win32_Processor).NumberOfCores | Measure-Object -Sum).Sum
 }
 catch {
 	Write-Host " Cannot determine number of CPU cores, defaulting to 4." -fore Yellow
-	$CoreCount = "4"
+	[int]$CoreCount = 4
 }
 #Don't end up with MAXDOP and tempdb data files count higher than 8
-if ($CoreCount -gt "8") {
-	$CoreCount = "8"
+if ($CoreCount -gt 8) {
+	$CoreCount = 8
 }
 
 #Prepare config file
@@ -482,7 +482,7 @@ if ($AddFirewallRules) {
 	#Check if the rule exists firts
 	try {
 		$TestRule = Get-NetFirewallRule -DisplayName "SQL Server Browser service" -ErrorAction Stop | Select-Object -ExpandProperty DisplayName -ErrorAction Stop
-		Write-Host " ->A firewall rule with the name 'SQL Server Browser service' already exists."
+		Write-Host " ->A firewall rule with the name '$TestRule' already exists."
 		$BrowserRuleExists = 'Y'
 	}
 	catch {
