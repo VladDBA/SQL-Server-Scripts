@@ -168,9 +168,10 @@ WHILE @Pass <= 4
 
       /*Get results*/
 /*Summary avg*/
-SELECT COUNT([pass])                                  AS [Passes],
-       [physical_name],
-       [type_desc],
+SELECT DB_NAME()                                      AS [database],
+       COUNT([pass])                                  AS [passes],
+       [physical_name]                                AS [file_physical_name],
+       [type_desc]                                    AS [file_type],
        CAST(AVG([delta_written_MB]) AS NUMERIC(6, 2)) AS [written_per_pass_MB],
        AVG([duration_ms])                             AS [avg_duration_ms],
        AVG([avg_io_stall_write_ms])                   AS [avg_io_stall_write_ms],
@@ -179,13 +180,13 @@ SELECT COUNT([pass])                                  AS [Passes],
 FROM   [io_stats_writes]
 GROUP  BY [physical_name],
           [type_desc],
-		  [file_id]
-ORDER BY [file_id] ASC
-OPTION(RECOMPILE);
-
+          [file_id]
+ORDER  BY [file_id] ASC
+OPTION(RECOMPILE); 
 /*Summary totals*/
-SELECT [physical_name],
-       [type_desc],
+SELECT DB_NAME()                                      AS [database],
+       [physical_name]                                AS [file_physical_name],
+       [type_desc]                                    AS [file_type],
        CAST(SUM([delta_written_MB]) AS NUMERIC(6, 2)) AS [total_written_MB],
        SUM([duration_ms])                             AS [total_duration_ms],
        SUM([avg_io_stall_write_ms])                   AS [total_io_stall_write_ms],
@@ -194,23 +195,25 @@ SELECT [physical_name],
 FROM   [io_stats_writes]
 GROUP  BY [physical_name],
           [type_desc],
-		  [file_id]
-ORDER BY [file_id] ASC
-OPTION(RECOMPILE);
-
+          [file_id]
+ORDER  BY [file_id] ASC
+OPTION(RECOMPILE); 
 /*Details*/
-SELECT [pass],
+SELECT DB_NAME()               AS [database],
+       [pass],
        [file_logical_name],
-       [physical_name],
-       [type_desc],
+       [physical_name]         AS [file_physical_name],
+       [type_desc]             AS [file_type],
        [duration_ms],
-       [delta_size_on_disk_MB],
+       [delta_size_on_disk_MB] AS [file_size_increase_MB],
        [avg_io_stall_write_ms],
-       [delta_num_of_writes],
-       [delta_written_MB]
+       [delta_num_of_writes]   AS [writes],
+       [delta_written_MB]      AS [written_MB]
 FROM   [io_stats_writes]
-ORDER BY [pass], [file_id] ASC
-OPTION(RECOMPILE);
+ORDER  BY [pass],
+          [file_id] ASC
+OPTION(RECOMPILE); 
+
       
 	  /*Cleanup*/
 IF OBJECT_ID('dbo.speed_test') IS NOT NULL
