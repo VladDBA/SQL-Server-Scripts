@@ -11,21 +11,21 @@
 */
 SET NOCOUNT ON;
 
-IF OBJECT_ID('dbo.SpeedTest') IS NOT NULL
+IF OBJECT_ID('dbo.speed_test') IS NOT NULL
   BEGIN
-      DROP TABLE dbo.[SpeedTest];
+      DROP TABLE dbo.[speed_test];
   END;
 
-IF OBJECT_ID('dbo.IOStatsWrites') IS NOT NULL
+IF OBJECT_ID('dbo.io_stats_writes') IS NOT NULL
   BEGIN
-      DROP TABLE dbo.[IOStatsWrites];
+      DROP TABLE dbo.[io_stats_writes];
   END;
 
 DECLARE @Source TABLE
   (
      [ID]      INT,
-     [String1] NVARCHAR(198),
-     [String2] NVARCHAR(198)
+     [string1] NVARCHAR(198),
+     [string2] NVARCHAR(198)
   );
 
 DECLARE @Row     INT,
@@ -56,16 +56,16 @@ WHILE @Row <= @Records
   END;
 
 /*Create relevant tables*/
-CREATE TABLE [SpeedTest]
+CREATE TABLE [speed_test]
   (
      [ID]      INT,
-     [String1] NVARCHAR(198),
-     [String2] NVARCHAR(198)
+     [string1] NVARCHAR(198),
+     [string2] NVARCHAR(198)
   );
 
-CREATE TABLE [dbo].[IOStatsWrites]
+CREATE TABLE [dbo].[io_stats_writes]
   (
-     [Pass]                      TINYINT NOT NULL,
+     [pass]                      TINYINT NOT NULL,
      [pre_sample_time]           DATETIME2 NULL,
      [post_sample_time]          DATETIME2 NULL,
      [duration_ms] AS DATEDIFF(millisecond, [pre_sample_time], [post_sample_time]),
@@ -95,8 +95,8 @@ SET @Pass = 1;
 WHILE @Pass <= 4
   BEGIN
       /*Pre-pass snapshot*/
-      INSERT INTO [IOStatsWrites]
-                  ([Pass],
+      INSERT INTO [io_stats_writes]
+                  ([pass],
                    [pre_sample_time],
                    [file_id],
                    [db_name],
@@ -107,31 +107,31 @@ WHILE @Pass <= 4
                    [pre_num_of_bytes_written],
                    [physical_name],
                    [type_desc])
-      SELECT @Pass                                                             AS [Pass],
+      SELECT @Pass                                                             AS [pass],
              GETDATE()                                                         AS [pre_sample_time],
-             [mf].[file_id],
+             [df].[file_id],
              DB_NAME([vfs].[database_id])                                      AS [db_name],
-             [mf].name                                                         AS [file_logical_name],
+             [df].name                                                         AS [file_logical_name],
              CAST(( ( [vfs].[size_on_disk_bytes] / 1024.0 ) / 1024.0 ) AS INT) AS [pre_size_on_disk_MB],
              [vfs].[io_stall_write_ms]                                         AS [pre_io_stall_write_ms],
              [vfs].[num_of_writes]                                             AS [pre_num_of_writes],
              [vfs].[num_of_bytes_written]                                      AS [pre_num_of_bytes_written],
-             [mf].[physical_name],
-             [mf].[type_desc]
+             [df].[physical_name],
+             [df].[type_desc]
       FROM   sys.dm_io_virtual_file_stats (NULL, NULL) AS [vfs]
-             INNER JOIN sys.[database_files] AS [mf]
-                     ON [vfs].[file_id] = [mf].[file_id]
+             INNER JOIN sys.[database_files] AS [df]
+                     ON [vfs].[file_id] = [df].[file_id]
                         AND [vfs].[database_id] = DB_ID()
       WHERE  [vfs].[num_of_writes] > 0
       OPTION(RECOMPILE);
 	  /*insert 1GB of data*/
-      INSERT INTO [SpeedTest] WITH(TABLOCK)
+      INSERT INTO [speed_test] WITH(TABLOCK)
       SELECT [ID],
-             [String1],
-             [String2]
+             [string1],
+             [string2]
       FROM   @Source;
 	  /*post-pass snapshot*/
-      WITH post_insert
+      WITH [post_insert]
            AS (SELECT [mf].[file_id],
                       DB_NAME([vfs].[database_id])                                      AS [db_name],
                       [mf].[name]                                                       AS [file_logical_name],
@@ -147,15 +147,15 @@ WHILE @Pass <= 4
                                  AND [vfs].[database_id] = DB_ID()
                WHERE  [vfs].[num_of_writes] > 0)
       UPDATE [sw]
-      SET    sw.[post_sample_time] = GETDATE(),
-             sw.[post_io_stall_write_ms] = post_insert.[post_io_stall_write_ms],
-             sw.[post_num_of_bytes_written] = post_insert.[post_num_of_bytes_written],
-             sw.[post_num_of_writes] = post_insert.[post_num_of_writes],
-             sw.[post_size_on_disk_mb] = post_insert.[post_size_on_disk_mb]
-      FROM   [IOStatsWrites] [sw]
-             INNER JOIN post_insert
-                     ON [sw].[file_id] = post_insert.[file_id]
-      WHERE  [sw].[Pass] = @Pass
+      SET    [sw].[post_sample_time] = GETDATE(),
+             [sw].[post_io_stall_write_ms] = [pi].[post_io_stall_write_ms],
+             [sw].[post_num_of_bytes_written] = [pi].[post_num_of_bytes_written],
+             [sw].[post_num_of_writes] = [pi].[post_num_of_writes],
+             [sw].[post_size_on_disk_mb] = [pi].[post_size_on_disk_mb]
+      FROM   [io_stats_writes] [sw]
+             INNER JOIN [post_insert] AS [pi]
+                     ON [sw].[file_id] = [pi].[file_id]
+      WHERE  [sw].[pass] = @Pass
       OPTION(RECOMPILE);
 
       SET @Pass +=1;
@@ -168,7 +168,7 @@ WHILE @Pass <= 4
 
       /*Get results*/
 /*Summary avg*/
-SELECT COUNT([Pass])                                  AS [Passes],
+SELECT COUNT([pass])                                  AS [Passes],
        [physical_name],
        [type_desc],
        CAST(AVG([delta_written_MB]) AS NUMERIC(6, 2)) AS [written_per_pass_MB],
@@ -176,7 +176,7 @@ SELECT COUNT([Pass])                                  AS [Passes],
        AVG([avg_io_stall_write_ms])                   AS [avg_io_stall_write_ms],
        AVG([delta_num_of_writes])                     AS [avg_writes_per_pass],
        AVG([delta_size_on_disk_MB])                   AS [avg_file_size_increase_MB]
-FROM   [IOStatsWrites]
+FROM   [io_stats_writes]
 GROUP  BY [physical_name],
           [type_desc],
 		  [file_id]
@@ -191,7 +191,7 @@ SELECT [physical_name],
        SUM([avg_io_stall_write_ms])                   AS [total_io_stall_write_ms],
        SUM([delta_num_of_writes])                     AS [total_writes],
        SUM([delta_size_on_disk_MB])                   AS [total_file_size_increase_MB]
-FROM   [IOStatsWrites]
+FROM   [io_stats_writes]
 GROUP  BY [physical_name],
           [type_desc],
 		  [file_id]
@@ -199,7 +199,7 @@ ORDER BY [file_id] ASC
 OPTION(RECOMPILE);
 
 /*Details*/
-SELECT [Pass],
+SELECT [pass],
        [file_logical_name],
        [physical_name],
        [type_desc],
@@ -208,16 +208,16 @@ SELECT [Pass],
        [avg_io_stall_write_ms],
        [delta_num_of_writes],
        [delta_written_MB]
-FROM   [IOStatsWrites]
-ORDER BY [Pass], [file_id] ASC
+FROM   [io_stats_writes]
+ORDER BY [pass], [file_id] ASC
 OPTION(RECOMPILE);
-      /*Cleanup*/
-IF OBJECT_ID('dbo.SpeedTest') IS NOT NULL
+      
+	  /*Cleanup*/
+IF OBJECT_ID('dbo.speed_test') IS NOT NULL
   BEGIN
-      DROP TABLE dbo.[SpeedTest];
+      DROP TABLE dbo.[speed_test];
   END;
-
-IF OBJECT_ID('dbo.IOStatsWrites') IS NOT NULL
+IF OBJECT_ID('dbo.io_stats_writes') IS NOT NULL
   BEGIN
-      DROP TABLE dbo.[IOStatsWrites];
+      DROP TABLE dbo.[io_stats_writes];
   END;
