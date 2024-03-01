@@ -178,7 +178,9 @@ SELECT COUNT([Pass])                                  AS [Passes],
        AVG([delta_size_on_disk_MB])                   AS [avg_file_size_increase_MB]
 FROM   [IOStatsWrites]
 GROUP  BY [physical_name],
-          [type_desc]
+          [type_desc],
+		  [file_id]
+ORDER BY [file_id] ASC
 OPTION(RECOMPILE);
 
 /*Summary totals*/
@@ -191,7 +193,9 @@ SELECT [physical_name],
        SUM([delta_size_on_disk_MB])                   AS [total_file_size_increase_MB]
 FROM   [IOStatsWrites]
 GROUP  BY [physical_name],
-          [type_desc]
+          [type_desc],
+		  [file_id]
+ORDER BY [file_id] ASC
 OPTION(RECOMPILE);
 
 /*Details*/
@@ -205,6 +209,7 @@ SELECT [Pass],
        [delta_num_of_writes],
        [delta_written_MB]
 FROM   [IOStatsWrites]
+ORDER BY [Pass], [file_id] ASC
 OPTION(RECOMPILE);
       /*Cleanup*/
 IF OBJECT_ID('dbo.SpeedTest') IS NOT NULL
