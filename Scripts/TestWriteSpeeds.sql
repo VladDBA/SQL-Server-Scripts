@@ -78,7 +78,6 @@ CREATE TABLE [dbo].[io_stats_writes]
      [pre_io_stall_write_ms]     BIGINT NULL,
      [post_io_stall_write_ms]    BIGINT NULL,
      [delta_io_stall_write_ms] AS ( [post_io_stall_write_ms] - [pre_io_stall_write_ms] ),
-     [avg_io_stall_write_ms] AS ( ( [post_io_stall_write_ms] - [pre_io_stall_write_ms] ) / ( [post_num_of_writes] - [pre_num_of_writes] ) ),
      [pre_num_of_writes]         BIGINT NULL,
      [post_num_of_writes]        BIGINT NULL,
      [delta_num_of_writes] AS ( [post_num_of_writes] - [pre_num_of_writes] ),
@@ -130,6 +129,7 @@ WHILE @Pass <= 4
              [string1],
              [string2]
       FROM   @Source;
+	  CHECKPOINT;
 	  /*post-pass snapshot*/
       WITH [post_insert]
            AS (SELECT [mf].[file_id],
@@ -156,7 +156,7 @@ WHILE @Pass <= 4
              INNER JOIN [post_insert] AS [pi]
                      ON [sw].[file_id] = [pi].[file_id]
       WHERE  [sw].[pass] = @Pass
-      OPTION(RECOMPILE);
+      OPTION(RECOMPILE); 
 
       SET @Pass +=1;
 
@@ -168,30 +168,30 @@ WHILE @Pass <= 4
 
       /*Get results*/
 /*Summary avg*/
-SELECT DB_NAME()                                      AS [database],
-       COUNT([pass])                                  AS [passes],
-       [physical_name]                                AS [file_physical_name],
-       [type_desc]                                    AS [file_type],
-       CAST(AVG([delta_written_MB]) AS NUMERIC(6, 2)) AS [written_per_pass_MB],
-       AVG([duration_ms])                             AS [avg_duration_ms],
-       AVG([avg_io_stall_write_ms])                   AS [avg_io_stall_write_ms],
-       AVG([delta_num_of_writes])                     AS [avg_writes_per_pass],
-       AVG([delta_size_on_disk_MB])                   AS [avg_file_size_increase_MB]
+SELECT DB_NAME()                                                  AS [database],
+       COUNT([pass])                                              AS [passes],
+       [physical_name]                                            AS [file_physical_name],
+       [type_desc]                                                AS [file_type],
+       CAST(AVG([delta_written_MB]) AS NUMERIC(6, 2))             AS [written_per_pass_MB],
+       AVG([duration_ms])                                         AS [avg_duration_ms],
+       AVG(( [delta_io_stall_write_ms] / [delta_num_of_writes] )) AS [avg_io_stall_write_ms],
+       AVG([delta_num_of_writes])                                 AS [avg_writes_per_pass],
+       AVG([delta_size_on_disk_MB])                               AS [avg_file_size_increase_MB]
 FROM   [io_stats_writes]
 GROUP  BY [physical_name],
           [type_desc],
           [file_id]
 ORDER  BY [file_id] ASC
-OPTION(RECOMPILE); 
+OPTION(RECOMPILE);
 /*Summary totals*/
-SELECT DB_NAME()                                      AS [database],
-       [physical_name]                                AS [file_physical_name],
-       [type_desc]                                    AS [file_type],
-       CAST(SUM([delta_written_MB]) AS NUMERIC(6, 2)) AS [total_written_MB],
-       SUM([duration_ms])                             AS [total_duration_ms],
-       SUM([avg_io_stall_write_ms])                   AS [total_io_stall_write_ms],
-       SUM([delta_num_of_writes])                     AS [total_writes],
-       SUM([delta_size_on_disk_MB])                   AS [total_file_size_increase_MB]
+SELECT DB_NAME()                                                  AS [database],
+       [physical_name]                                            AS [file_physical_name],
+       [type_desc]                                                AS [file_type],
+       CAST(SUM([delta_written_MB]) AS NUMERIC(6, 2))             AS [total_written_MB],
+       SUM([duration_ms])                                         AS [total_duration_ms],
+       SUM(( [delta_io_stall_write_ms] / [delta_num_of_writes] )) AS [total_avg_io_stall_write_ms],
+       SUM([delta_num_of_writes])                                 AS [total_writes],
+       SUM([delta_size_on_disk_MB])                               AS [total_file_size_increase_MB]
 FROM   [io_stats_writes]
 GROUP  BY [physical_name],
           [type_desc],
@@ -199,22 +199,21 @@ GROUP  BY [physical_name],
 ORDER  BY [file_id] ASC
 OPTION(RECOMPILE); 
 /*Details*/
-SELECT DB_NAME()               AS [database],
+SELECT DB_NAME()                                             AS [database],
        [pass],
        [file_logical_name],
-       [physical_name]         AS [file_physical_name],
-       [type_desc]             AS [file_type],
+       [physical_name]                                       AS [file_physical_name],
+       [type_desc]                                           AS [file_type],
        [duration_ms],
-       [delta_size_on_disk_MB] AS [file_size_increase_MB],
-       [avg_io_stall_write_ms],
-       [delta_num_of_writes]   AS [writes],
-       [delta_written_MB]      AS [written_MB]
+       [delta_num_of_writes]                                 AS [writes],
+       ( [delta_io_stall_write_ms] / [delta_num_of_writes] ) AS [avg_io_stall_write_ms],
+       [delta_written_MB]                                    AS [written_MB],
+       [delta_size_on_disk_MB]                               AS [file_size_increase_MB]
 FROM   [io_stats_writes]
 ORDER  BY [pass],
           [file_id] ASC
 OPTION(RECOMPILE); 
-
-      
+     
 	  /*Cleanup*/
 IF OBJECT_ID('dbo.speed_test') IS NOT NULL
   BEGIN
