@@ -6,7 +6,7 @@
       Author: Vlad Drumea
       Website: https://vladdba.com
       From: https://github.com/VladDBA/SQL-Server-Scripts/
-      More info:
+      More info: https://vladdba.com/2024/03/02/measure-write-speeds-in-sql-server/
       License: https://github.com/VladDBA/SQL-Server-Scripts/blob/main/LICENSE.md
 */
 SET NOCOUNT ON;
