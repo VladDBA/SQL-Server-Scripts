@@ -88,7 +88,7 @@ CREATE TABLE [dbo].[io_stats_writes]
      [physical_name]             NVARCHAR(260) NULL,
      [type_desc]                 NVARCHAR(60) NULL
   );
-
+CHECKPOINT;
 SET @Pass = 1;
 
 WHILE @Pass <= 4
