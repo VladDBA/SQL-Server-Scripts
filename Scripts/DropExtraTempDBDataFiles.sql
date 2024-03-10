@@ -3,18 +3,20 @@
 	Author: Vlad Drumea
 	Website: https://vladdba.com
 	From: https://github.com/VladDBA/SQL-Server-Scripts/
-	More info: 
+	More info: https://vladdba.com/2024/03/11/script-to-delete-extra-tempdb-data-files
 	License: https://github.com/VladDBA/SQL-Server-Scripts/blob/main/LICENSE.md
 	Usage: 
 	  On a fairly quiet environment:
-		1. set @NumFilesToDrop to the number of files you want to DROP 
-		2. execute it 
+		1. Paste this script in a Query Editor window.
+		1. Set @NumFilesToDrop to the number of files you want to DROP.
+		2. Execute it.
 	  On a busy environment: 
-		1. create a SQL Server Agent job
-		2. add a step containing the T-SQL below, 
-		3. set @NumFilesToDrop to the number of files you want to DROP
-		4. Schedule the job to run at instance startup
-		5. Restart the the instance during a maintenance window
+		1. Create a SQL Server Agent job.
+		2. Add a step containing the T-SQL below. 
+		3. Set @NumFilesToDrop to the number of files you want to DROP.
+		4. Schedule the job to run at instance startup.
+		5. Restart the the instance during a maintenance window.
+		6. Delete the SQL Server Agent job since if it runs again it will delete more tempdb data files. 
 
 */
 
@@ -54,7 +56,7 @@ WHILE @@FETCH_STATUS = 0
       /*another one bites the dust*/
       SET @NumFilesToDrop -= 1;
 
-      IF @NumFilesToDrop = 0
+      IF @NumFilesToDrop <= 0
         BEGIN
             BREAK;
         END
