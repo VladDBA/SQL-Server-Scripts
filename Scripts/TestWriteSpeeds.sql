@@ -2,7 +2,11 @@
       Description: Generates 1GB of data and writes 4 passes of it into a table, measuring the duration and stalls for each pass
 	    Ideally, you'd run this when the database isn't being used 
 	  or create a dedicated database on the same storage and config that you'd want to test.
-      Create date: 2024-02-28
+	  
+	  Note: If you're seeing suspiciously long times on databases with FULL recovery model, 
+	  uncomment line 136 ( the OPTION(MAXDOP 1) hint) and run the script again.
+      
+	  Create date: 2024-02-28
       Author: Vlad Drumea
       Website: https://vladdba.com
       From: https://github.com/VladDBA/SQL-Server-Scripts/
@@ -128,7 +132,9 @@ WHILE @Pass <= 4
       SELECT [ID],
              [string1],
              [string2]
-      FROM   @Source;
+      FROM   @Source 
+	  --OPTION(MAXDOP 1)
+	  ;
 	  CHECKPOINT;
 	  /*post-pass snapshot*/
       WITH [post_insert]
