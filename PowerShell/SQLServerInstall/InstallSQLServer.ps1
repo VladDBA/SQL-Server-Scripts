@@ -101,7 +101,10 @@
  Optional. Switch. When used, the script skips applying the CU patch even if the installation kit is in the CUInstallKit directory.
 
 .PARAMETER CustomScript
- Optional. Used to provide the path to a custom .sql script that does some extra post-install configuration. 
+ Optional. Used to provide the path to a custom .sql script that does some extra post-install configuration.
+
+.PARAMETER AutoReboot
+ Optional. Switch. When used, the script skips prompting to confirm the reboot and just reboots the machine.
 
 .LINK
 
@@ -150,7 +153,9 @@ param(
 	[Parameter(Mandatory = $False)]
 	[switch]$DontPatch,
 	[Parameter(Mandatory = $False)]
-	[string]$CustomScript
+	[string]$CustomScript,
+	[Parameter(Mandatory = $False)]
+	[switch]$AutoReboot
 )
 
 #Get script path
@@ -560,8 +565,10 @@ Write-Host " $InstallConfigFile"
 Write-Host " "
 Write-Host ("=" * 90)
 Write-Host "The machine needs to be restarted to complete the installation."
-$RebootNow = Read-Host -Prompt "Restart now?(empty defaults to N)[Y/N]"
-if ($RebootNow -eq "Y") {
+if($AutoReboot -eq $false){
+	$RebootNow = Read-Host -Prompt "Restart now?(empty defaults to N)[Y/N]"
+}
+if (($RebootNow -eq "Y") -or ($AutoReboot)) {
 	Write-Host "The machine will be restarted in 5 seconds..."
 	Start-Sleep -Seconds 5
 	Restart-Computer
