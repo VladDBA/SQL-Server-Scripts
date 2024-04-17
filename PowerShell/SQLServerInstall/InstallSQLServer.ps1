@@ -40,7 +40,7 @@
  - Reboots the machine.
 
  Changelog:
- 2023-02-13 - Minor changes and moved to GitHub
+ 2024-02-13 - Minor changes and moved to GitHub
  2024-02-10 - Added firewall rules configuration and Comment-Based help
  2023-12-31 - Added SQL Server 2022 support
  2022-05-27 - Added static port configuration
