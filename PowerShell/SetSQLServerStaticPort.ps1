@@ -6,6 +6,9 @@
 .PARAMETER InstanceName
  Should be the name of the instance for which you want to make the port changes.
 
+.PARAMETER Version
+ The version of the SQL Server instance. E.g. 2019
+
 .PARAMETER StaticPort
  The static TCP port that should be configured for the instance.
 
@@ -21,8 +24,8 @@
  License: MIT https://opensource.org/licenses/MIT
 
 .EXAMPLE
- PS>.\SetSQLServerStaticPort.ps1 SQL2019 1488 -AddFirewallRules
- Sets the static port to 1488 for instance SQL2019 and adds the appropriate firewall rules
+ PS>.\SetSQLServerStaticPort.ps1 SQL2019 2019 1488 -AddFirewallRules
+ Sets the static port to 1488 for instance SQL2019, running SQL Server 2019, and adds the appropriate firewall rules
 
 #> 
 
@@ -31,6 +34,8 @@ param(
     [Parameter(Position = 0, Mandatory = $True)]
     [string]$InstanceName,
     [Parameter(Position = 1, Mandatory = $True)]
+    [int]$Version,
+    [Parameter(Position = 2, Mandatory = $True)]
     [int]$StaticPort,
     [Parameter(Mandatory = $False)]
     [switch]$AddFirewallRules
@@ -39,6 +44,16 @@ param(
 if ((New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -ne $true) { 
     Write-Host " You need to run PowerShell as administrator for this script to work."  -fore Red
     Exit
+}
+##Figure out SQL Server build number
+if($Version -eq 2016){
+    $MajorVersion = 13
+} elseif ($Version -eq 2017) {
+    $MajorVersion = 14
+} elseif ($Version -eq 2019) {
+    $MajorVersion = 15
+} elseif ($Version -eq 2022) {
+    $MajorVersion = 16
 }
 
 Write-Host " Setting static TCP port $StaticPort for instance $InstanceName."
