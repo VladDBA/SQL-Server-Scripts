@@ -484,7 +484,7 @@ if ($AddFirewallRules) {
 		$SQLServerFWDescription = "Inbound rule for SQL Server $InstanceName to allow connections to TCP port $StaticPort"
 		New-NetFirewallRule -DisplayName "SQL Server $InstanceName" -Description $SQLServerFWDescription -Direction Inbound -Program $SQLServerFWProgram -LocalPort $StaticPort -Protocol TCP -Action Allow | Out-Null
 	}
-	#Check if the rule exists firts
+	#Check if the rule exists first
 	try {
 		$TestRule = Get-NetFirewallRule -DisplayName "SQL Server Browser service" -ErrorAction Stop | Select-Object -ExpandProperty DisplayName -ErrorAction Stop
 		Write-Host " ->A firewall rule with the name '$TestRule' already exists."
