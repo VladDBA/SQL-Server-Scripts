@@ -56,6 +56,14 @@ if($Version -eq 2016){
     $MajorVersion = 16
 }
 
+##Make sure the TCPIP protocol is enabled
+$TcpStateRegPath = "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft SQL Server\MSSQL$MajorVersion.$InstanceName\MSSQLServer\SuperSocketNetLib\Tcp"
+[int]$IsTcpEnabled = Get-ItemProperty -Path Registry::"$TcpStateRegPath" -Name Enabled | Select-Object -ExpandProperty Enabled
+if($IsTcpEnabled -eq 0){
+    Write-Host " The TCP/IP protocol for instance $InstanceName is disabled. Enabling it now."
+    Set-ItemProperty -Path Registry::"$TcpStateRegPath" -Name Enabled -Value 1
+}
+
 Write-Host " Setting static TCP port $StaticPort for instance $InstanceName."
 $PortPaths = Get-ChildItem -Path "HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\MSSQL$MajorVersion.$InstanceName\MSSQLServer\SuperSocketNetLib\Tcp" | Select-Object -ExpandProperty Name
 foreach ($PortPath in $PortPaths) {
