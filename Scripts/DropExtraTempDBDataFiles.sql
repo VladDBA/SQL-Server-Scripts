@@ -8,8 +8,8 @@
 	Usage: 
 	  On a fairly quiet environment:
 		1. Paste this script in a Query Editor window.
-		1. Set @NumFilesToDrop to the number of files you want to DROP.
-		2. Execute it.
+		2. Set @NumFilesToDrop to the number of files you want to DROP.
+		3. Execute it.
 	  On a busy environment: 
 		1. Create a SQL Server Agent job.
 		2. Add a step containing the T-SQL below. 
