@@ -14,6 +14,8 @@
     /*Set model to SIMPLE recovery*/
 ALTER DATABASE [model] SET RECOVERY SIMPLE;
 GO
+
+    /*Set the user databases to SIMPLE recovery*/
 DECLARE @DatabaseName NVARCHAR(130),
         @LogFileName  NVARCHAR(128),
         @SQL          NVARCHAR(500),
