@@ -1,7 +1,8 @@
 <#
 .SYNOPSIS
- This script disables dynamic port for the specified instance, sets the static port in IPAll to the specified port number,
- and can optionally add inbound firewall rules for both the instance and the SQL Server Browser service.
+  This script enables TCP/IP if not enabled, sets Listen ALL to Yes if it's set to No,
+ disables dynamic port, sets the static port in IPAll to the specified port number.
+ Optionally adds inbound firewall rules for both the instance and the SQL Server Browser service.
 
 .PARAMETER InstanceName
  Should be the name of the instance for which you want to make the port changes.
@@ -19,6 +20,7 @@
  Author: Vlad Drumea (VladDBA)
  Website: https://vladdba.com/
  GitHub: https://github.com/VladDBA
+ Related blog post: https://vladdba.com/2024/04/18/sql-server-static-port-powershell/
 
  Copyright: (c) 2024 by Vlad Drumea, licensed under MIT
  License: MIT https://opensource.org/licenses/MIT
@@ -64,12 +66,22 @@ if($IsTcpEnabled -eq 0){
     Set-ItemProperty -Path Registry::"$TcpStateRegPath" -Name Enabled -Value 1
 }
 
+##Make sure the Listen ALL is set to Yes protocol is enabled
+$TcpStateRegPath = "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft SQL Server\MSSQL$MajorVersion.$InstanceName\MSSQLServer\SuperSocketNetLib\Tcp"
+[int]$IsTcpEnabled = Get-ItemProperty -Path Registry::"$TcpStateRegPath" -Name ListenOnAllIPs | Select-Object -ExpandProperty ListenOnAllIPs
+if($IsTcpEnabled -eq 0){
+    Write-Host " The TCP/IP protocol for instance $InstanceName is not set to listen on all IPs.`n  Setting Listen All to Yes now."
+    Set-ItemProperty -Path Registry::"$TcpStateRegPath" -Name ListenOnAllIPs -Value 1
+}
+
 Write-Host " Setting static TCP port $StaticPort for instance $InstanceName."
 $PortPaths = Get-ChildItem -Path "HKLM:\SOFTWARE\Microsoft\Microsoft SQL Server\MSSQL$MajorVersion.$InstanceName\MSSQLServer\SuperSocketNetLib\Tcp" | Select-Object -ExpandProperty Name
 foreach ($PortPath in $PortPaths) {
     if ($PortPath -notlike "*IPAll") {
         #disable dynamic TCP port
         Set-ItemProperty -Path Registry::"$PortPath" -Name TcpDynamicPorts -Value ''
+        #And disable IP to avoid it overriding IPALL
+        Set-ItemProperty -Path Registry::"$PortPath" -Name Enabled -Value 0
     }
     else {
         #clear out current dynamic TCP port value and set static TCP port
