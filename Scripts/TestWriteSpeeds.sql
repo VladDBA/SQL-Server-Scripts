@@ -157,7 +157,7 @@ WHILE @Pass <= 4
              [sw].[post_io_stall_write_ms] = [pi].[post_io_stall_write_ms],
              [sw].[post_num_of_bytes_written] = [pi].[post_num_of_bytes_written],
              [sw].[post_num_of_writes] = [pi].[post_num_of_writes],
-             [sw].[post_size_on_disk_mb] = [pi].[post_size_on_disk_mb]
+             [sw].[post_size_on_disk_MB] = [pi].[post_size_on_disk_MB]
       FROM   [io_stats_writes] [sw]
              INNER JOIN [post_insert] AS [pi]
                      ON [sw].[file_id] = [pi].[file_id]
