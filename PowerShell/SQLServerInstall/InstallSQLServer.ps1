@@ -40,6 +40,7 @@
  - Reboots the machine.
 
  Changelog:
+ 2024-06-18 - Added components from older script use for SQL Server 2017
  2024-02-13 - Minor changes and moved to GitHub
  2024-02-10 - Added firewall rules configuration and Comment-Based help
  2023-12-31 - Added SQL Server 2022 support
@@ -244,6 +245,8 @@ if ($Version -eq "2022") {
 }
 elseif ($Version -eq "2019") {
 	$MajorVersion = "15"
+}elseif ($Version -eq "2017") {
+	$MajorVersion = "14"
 }
 
 #Set SQLCMD instance name
@@ -357,6 +360,9 @@ RECONFIGURE WITH OVERRIDE;
 GO
 EXEC sys.sp_configure N'cost threshold for parallelism', N'50';
 GO
+$(if($Version -eq "2017"){
+"EXEC sys.sp_configure N'max server memory (MB)', N'$MaxMemoryMB';`nGO`nRECONFIGURE WITH OVERRIDE;`nGO"
+})
 RECONFIGURE WITH OVERRIDE;
 GO
 EXEC sys.sp_configure N'backup compression default', N'1';
@@ -511,10 +517,10 @@ if (($AddFirewallRules) -or ($StaticPort -ne 0)) {
 if ($InstallSSMS) {
 	#Check if SSMS 19 is installed, and install it if not
 	Write-Host " "
-	Write-Host " Checking if SSMS 19 is installed..."
-	$SSMS19 = Get-WmiObject -Class Win32_Product -Filter "Name = 'SQL Server Management Studio' and Version >= '19.0.0'" | Select-Object -ExpandProperty Name
-	if ([string]::IsNullOrEmpty($SSMS19)) {
-		Write-Host " ->SSMS 19 is not installed, installing it now..."
+	Write-Host " Checking if SSMS 19 or newer is installed..."
+	[string]$SSMSVers = Get-WmiObject -Class Win32_Product -Filter "Name = 'SQL Server Management Studio' and Version >= '19.0.0'" | Sort-Object -Descending -Property Version | Select-Object -ExpandProperty Version -First 1
+	if ([string]::IsNullOrEmpty($SSMSVers)) {
+		Write-Host " ->SSMS 19 or newer is not installed, installing it now..."
 		$SSMSPath = $ScriptPath + "\SSMSInstallKit"
 		try {
 			$SSMSKit = Get-ChildItem -Path $SSMSPath -name SSMS-Setup*.exe | Sort-Object -Descending | Select-Object -first 1
@@ -528,7 +534,7 @@ if ($InstallSSMS) {
 	 
 	}
 	else {
-		Write-Host " ->SSMS 19 is already installed."
+		Write-Host " ->SSMS $SSMSVers already installed."
 	}
 }
 

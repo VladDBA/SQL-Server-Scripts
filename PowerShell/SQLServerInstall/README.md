@@ -75,6 +75,7 @@
  
 
 ## Changelog:
+ - 2024-06-18 - Added components from older script use for SQL Server 2017
  - 2023-02-13 - Minor changes and moved to GitHub
  - 2024-02-10 - Added firewall rules configuration and Comment-Based help
  - 2023-12-31 - Added SQL Server 2022 support
