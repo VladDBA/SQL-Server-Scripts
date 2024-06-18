@@ -192,6 +192,10 @@ if ($StaticPort -ne 0) {
 	if ($StaticPort -le 1023) {
 		Write-Host " I'm not the network police, but you're opting to use a well-known port." -fore Yellow
 		Write-Host " ->This can lead to port conflicts between your instance and other services." -fore Yellow
+	} elseif($StaticPort -eq 1434){
+		Write-Host " $StaticPort is used by the SQL Server Browser service and should be left alone." fore yellow
+		Write-Host " ->Incrementing port number by 1" -fore Yellow
+		$StaticPort += 1
 	}
 }
 
