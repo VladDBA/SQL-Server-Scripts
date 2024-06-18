@@ -84,6 +84,9 @@
  - 2022-05-27 - Added static port configuration
  - 2022-03-12 - Initial version of the script
 
+## More info
+[Related blog post](https://vladdba.com/2024/06/18/automate-sql-server-installation-powershell)
+
 ## MIT License
  Copyright (c) 2024 Vlad Drumea
 
