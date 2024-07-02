@@ -50,6 +50,11 @@
 | `-saPwd` | Mandatory. The password that will be set for the sa account during installation.|
 | `-IsDefault` | Optional. Switch. If -IsDefault is used then a default instance will be installed.|
 | `-InstanceRootDir` | Optional. The parent directory where the instance's main directory will be created. Defaults to D:\MSSQL if not provided|
+| `-BackupRootDir` | Optional. The parent directory where the instance's database backup files will be stored. Defaults to the value of -InstanceRootDir if not provided.|
+| `-UserDataRootDir` | Optional. The parent directory where the instance's user database data files will be stored. Defaults to the value of -InstanceRootDir if not provided.|
+| `-UserTLogRootDir` | Optional. The parent directory where the instance's user database tlog files will be stored. Defaults to the value of -UserDataRootDir if not provided.|
+| `-TempdbDataRootDir` | Optional. The parent directory where the instance's Tempdb data files will be stored. Defaults to the value of -InstanceRootDir if not provided.|
+| `-TempdbTLogRootDir` | Optional. The parent directory where the instance's Tempdb tlog files will be stored. Defaults to the value of -TempdbDataRootDir if not provided.|
 | `-InstanceCollation` | Optional. The collation that the instance should use. Defaults to SQL_Latin1_General_CP1_CI_AS if not provided.|
 | `-StaticPort` | Optional. The static TCP port that should be configured for the instance. |
 | `-AddFirewallRules` | Optional. Switch. Adds inbound firewall rules for the TCP ports used by SQL Server and the SQL Server Browser service.|
@@ -74,11 +79,21 @@
      ```PowerShell
     .\InstallSQLServer.ps1 -saPwd SuperStr0ngPassword -IsDefault -MaxMemoryMB 2048 -DontPatch -CustomScript C:\temp\AdditionalConfig.sql
 	```
- 
+4. Install a named instance, SQL2022_01, apply CU, auto configure memory, use SQL_Latin1_General_CP1_CS_AS collation, have the system databases and user database data files on drive D, tempdb files and user database tlog files on drive E, and backups on drive F
+     ```PowerShell
+    .\InstallSQLServer.ps1 SQL2022_01 -saPwd SuperStr0ngPassword -AutoMaxMemory -InstanceRootDir D:\ -UserDataRootDir D:\ -UserTLogRootDir E:\ -TempdbDataRootDir E:\ -BackupRootDir F:\
+	```
+In example number 4, the database files will be located as follows:
+ - system databases will be located in D:\SQL2022_01\MSSQL16.SQL2022_01\MSSQL\DATA
+ - user database data files will be located in D:\SQL2022_01\Data
+ - tempdb data files will be in E:\SQL2022_01\TempDB
+ - user database and tempdb tlog files will be in E:\SQL2022_01\TLog
+ - default backup location will be F:\SQL2022_01\Backup
 
 ## Changelog:
+ - 2024-07-02 - Added parameters to specify destination of user data, user tlog, backups, tempdb data and tempdb tlog files
  - 2024-06-18 - Added components from older script used for SQL Server 2017
- - 2023-02-13 - Minor changes and moved to GitHub
+ - 2024-02-13 - Minor changes and moved to GitHub
  - 2024-02-10 - Added firewall rules configuration and Comment-Based help
  - 2023-12-31 - Added SQL Server 2022 support
  - 2022-05-27 - Added static port configuration

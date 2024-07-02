@@ -80,6 +80,21 @@
 .PARAMETER InstanceRootDir
  Optional. The parent directory where the instance's main directory will be created. Defaults to D:\MSSQL if not provided.
 
+.PARAMETER BackupRootDir
+ Optional. The parent directory where the instance's database backup files will be stored. Defaults to the value of -InstanceRootDir if not provided.
+
+.PARAMETER UserDataRootDir
+ Optional. The parent directory where the instance's user database data files will be stored. Defaults to the value of -InstanceRootDir if not provided.
+
+.PARAMETER UserTLogRootDir
+ Optional. The parent directory where the instance's user database tlog files will be stored. Defaults to the value of -UserDataRootDir if not provided.
+
+.PARAMETER TempdbDataRootDir
+ Optional. The parent directory where the instance's Tempdb data files will be stored. Defaults to the value of -InstanceRootDir if not provided.
+
+.PARAMETER TempdbTLogRootDir
+ Optional. The parent directory where the instance's Tempdb tlog files will be stored. Defaults to the value of -TempdbDataRootDir if not provided.
+ 
 .PARAMETER InstanceCollation
  Optional. The collation that the instance should use. Defaults to SQL_Latin1_General_CP1_CI_AS if not provided.
 
@@ -121,12 +136,19 @@
  PS>.\InstallSQLServer.ps1 SQL2019 -saPwd SuperStr0ngPassword
  Installs a SQL Server instance named SQL2019 with the sa password set as SuperStr0ngPassword
 
+.EXAMPLE
  PS>.\InstallSQLServer.ps1 SQL2019 -saPwd SuperStr0ngPassword -StaticPort 1455 -AddFirewallRules -InstallSSMS
  Installs a SQL Server instance named SQL2019 with the sa password set as SuperStr0ngPassword, sets 1455 as the static TCP port, 
  adds firewall rules and installs SSMS
 
+.EXAMPLE
  PS>.\InstallSQLServer.ps1 -saPwd SuperStr0ngPassword -IsDefault
  Installs a default instance with the sa password set as SuperStr0ngPassword
+
+.EXAMPLE
+ PS>.\InstallSQLServer.ps1 SQL2022_01 -saPwd SuperStr0ngPassword -AutoMaxMemory -InstanceRootDir D:\ -UserDataRootDir D:\ -UserTLogRootDir E:\ -TempdbDataRootDir E:\ -BackupRootDir F:\
+ Install a named instance, SQL2022_01, apply CU, auto configure memory, use SQL_Latin1_General_CP1_CS_AS collation, have the system databases 
+ and user database data files on drive D, tempdb files and user database tlog files on drive E, and backups on drive F 
 
 #>
 [cmdletbinding()]
@@ -139,6 +161,16 @@ param(
 	[switch]$IsDefault,
 	[Parameter(Mandatory = $False)]
 	[string]$InstanceRootDir = "D:\MSSQL",
+	[Parameter(Mandatory = $False)]
+	[string]$BackupRootDir = $InstanceRootDir,
+	[Parameter(Mandatory = $False)]
+	[string]$UserDataRootDir = $InstanceRootDir,
+	[Parameter(Mandatory = $False)]
+	[string]$UserTLogRootDir = $UserDataRootDir,
+	[Parameter(Mandatory = $False)]
+	[string]$TempdbDataRootDir = $InstanceRootDir,
+	[Parameter(Mandatory = $False)]
+	[string]$TempdbTLogRootDir = $TempdbDataRootDir,
 	[Parameter(Mandatory = $False)]
 	[string]$InstanceCollation,
 	[Parameter(Mandatory = $False)]
@@ -332,10 +364,36 @@ if ($CoreCount -gt 8) {
 	$CoreCount = 8
 }
 
+#If user db and/or tempdb and/or backup paths are different than $InstanceRootDir 
+#they'll need to be created otherwise the install errors out
+if(($InstanceRootDir -ne $BackupRootDir) -and (!(Test-Path  "$BackupRootDir\$InstanceName\Backup"))){
+	New-Item -ItemType "directory" -Path "$BackupRootDir\$InstanceName\Backup" | Out-Null
+}
+if(($InstanceRootDir -ne $UserDataRootDir) -and (!(Test-Path  "$UserDataRootDir\$InstanceName\Data"))){
+	New-Item -ItemType "directory" -Path "$UserDataRootDir\$InstanceName\Data" | Out-Null
+}
+
+if(($InstanceRootDir -ne $UserTLogRootDir) -and (!(Test-Path  "$UserTLogRootDir\$InstanceName\TLog"))){
+	New-Item -ItemType "directory" -Path "$UserTLogRootDir\$InstanceName\TLog" | Out-Null
+}
+
+if(($InstanceRootDir -ne $TempdbDataRootDir) -and (!(Test-Path  "$TempdbDataRootDir\$InstanceName\TempDB"))){
+	New-Item -ItemType "directory" -Path "$TempdbDataRootDir\$InstanceName\TempDB" | Out-Null
+}
+
+if(($InstanceRootDir -ne $TempdbTLogRootDir) -and (!(Test-Path  "$TempdbTLogRootDir\$InstanceName\TLog"))){
+	New-Item -ItemType "directory" -Path "$TempdbTLogRootDir\$InstanceName\TLog" | Out-Null
+}
+
 #Prepare config file
 [string]$ConfigFile = $ConfigTemplate -replace "PSReplaceInstanceName", $InstanceName
 [string]$ConfigFile = $ConfigFile -replace "PSReplaceCollation", $InstanceCollation
 [string]$ConfigFile = $ConfigFile -replace "PSReplaceInstRootDir", $InstanceRootDir
+[string]$ConfigFile = $ConfigFile -replace "PSReplaceBkpRootDir", $BackupRootDir
+[string]$ConfigFile = $ConfigFile -replace "PSReplaceUserDataRootDir", $UserDataRootDir
+[string]$ConfigFile = $ConfigFile -replace "PSReplaceUserTLogRootDir", $UserTLogRootDir
+[string]$ConfigFile = $ConfigFile -replace "PSReplaceTempdbDataRootDir", $TempdbDataRootDir
+[string]$ConfigFile = $ConfigFile -replace "PSReplaceTempdbTLogRootDir", $TempdbTLogRootDir
 [string]$ConfigFile = $ConfigFile -replace "PSReplaceCoreCount", $CoreCount
 [string]$ConfigFile = $ConfigFile -replace "PSReplaceMaxMemory", $MaxMemoryMB
 
