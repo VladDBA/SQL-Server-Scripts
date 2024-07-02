@@ -14,7 +14,7 @@
     in the same parent directory as this script.
 	The CU installation kit should match the following naming convention SQLServer[YYYY]-KB[KBNumber]-x64.exe.
 	You can have multiple CUs in the directory, only the latest one will be installed.
- 4. If SQL Server 19 or above should be installed then the SSMS installation kit should be in the SSMSInstallKit directory, in the same
+ 4. If SQL Server Management Studio 19 or above should be installed then the SSMS installation kit should be in the SSMSInstallKit directory, in the same
     parent directory as this script.
 	The SSMS installation kit should match the following naming convention SSMS-Setup*.exe.
  5. The script should be executed from PowerShell opened as admin.
