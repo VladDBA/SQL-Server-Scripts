@@ -40,65 +40,66 @@ CREATE TABLE #SpecChars
   );
 
 /*Inserting special characters*/
-INSERT INTO #SpecChars (SpecChar) VALUES (N'!');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'^');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'?');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'.');
-INSERT INTO #SpecChars (SpecChar) VALUES (N',');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'~');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'#');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'@');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'$');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'&');
-INSERT INTO #SpecChars (SpecChar) VALUES (N')');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'(');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'-');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'=');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'_');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'+');
-INSERT INTO #SpecChars (SpecChar) VALUES (N':');
-INSERT INTO #SpecChars (SpecChar) VALUES (N';');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'"');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'<');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'>');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'/');
-INSERT INTO #SpecChars (SpecChar) VALUES (N' ');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'*');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'\');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'}');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'{');
-INSERT INTO #SpecChars (SpecChar) VALUES (N']');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'[');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'!!');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'^^');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'??');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'..');
-INSERT INTO #SpecChars (SpecChar) VALUES (N',,');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'~~');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'##');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'@@');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'$$');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'&&');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'))');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'((');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'--');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'==');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'__');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'++');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'::');
-INSERT INTO #SpecChars (SpecChar) VALUES (N';;');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'""');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'<<');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'>>');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'//');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'  ');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'**');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'\\');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'}}');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'{{');
-INSERT INTO #SpecChars (SpecChar) VALUES (N']]');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'[[');
-INSERT INTO #SpecChars (SpecChar) VALUES (N'');
+INSERT INTO #SpecChars (SpecChar) 
+VALUES      (N'!'),
+            (N'^'),
+            (N''),
+            (N'?'),
+            (N'.'),
+            (N','),
+            (N'~'),
+            (N'#'),
+            (N'@'),
+            (N'$'),
+            (N'&'),
+            (N')'),
+            (N'('),
+            (N'-'),
+            (N'='),
+            (N'_'),
+            (N'+'),
+            (N':'),
+            (N';'),
+            (N'"'),
+            (N'<'),
+            (N'>'),
+            (N'/'),
+            (N' '),
+            (N'*'),
+            (N'\'),
+            (N'}'),
+            (N'{'),
+            (N']'),
+            (N'['),
+            (N'!!'),
+            (N'^^'),
+            (N'??'),
+            (N'..'),
+            (N',,'),
+            (N'~~'),
+            (N'##'),
+            (N'@@'),
+            (N'$$'),
+            (N'&&'),
+            (N'))'),
+            (N'(('),
+            (N'--'),
+            (N'=='),
+            (N'__'),
+            (N'++'),
+            (N'::'),
+            (N';;'),
+            (N'""'),
+            (N'<<'),
+            (N'>>'),
+            (N'//'),
+            (N'  '),
+            (N'**'),
+            (N'\\'),
+            (N'}}'),
+            (N'{{'),
+            (N']]'),
+            (N'[[');
 
 /*Variable declaration*/
 DECLARE @BaseWord    NVARCHAR(100),
