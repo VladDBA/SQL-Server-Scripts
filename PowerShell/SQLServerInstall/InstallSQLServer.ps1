@@ -224,7 +224,8 @@ if ($StaticPort -ne 0) {
 	if ($StaticPort -le 1023) {
 		Write-Host " I'm not the network police, but you're opting to use a well-known port." -fore Yellow
 		Write-Host " ->This can lead to port conflicts between your instance and other services." -fore Yellow
-	} elseif($StaticPort -eq 1434){
+	}
+ elseif ($StaticPort -eq 1434) {
 		Write-Host " $StaticPort is used by the SQL Server Browser service and should be left alone." fore yellow
 		Write-Host " ->Incrementing port number by 1" -fore Yellow
 		$StaticPort += 1
@@ -281,7 +282,8 @@ if ($Version -eq "2022") {
 }
 elseif ($Version -eq "2019") {
 	$MajorVersion = "15"
-}elseif ($Version -eq "2017") {
+}
+elseif ($Version -eq "2017") {
 	$MajorVersion = "14"
 }
 
@@ -366,22 +368,22 @@ if ($CoreCount -gt 8) {
 
 #If user db and/or tempdb and/or backup paths are different than $InstanceRootDir 
 #they'll need to be created otherwise the install errors out
-if(($InstanceRootDir -ne $BackupRootDir) -and (!(Test-Path  "$BackupRootDir\$InstanceName\Backup"))){
+if (($InstanceRootDir -ne $BackupRootDir) -and (!(Test-Path  "$BackupRootDir\$InstanceName\Backup"))) {
 	New-Item -ItemType "directory" -Path "$BackupRootDir\$InstanceName\Backup" | Out-Null
 }
-if(($InstanceRootDir -ne $UserDataRootDir) -and (!(Test-Path  "$UserDataRootDir\$InstanceName\Data"))){
+if (($InstanceRootDir -ne $UserDataRootDir) -and (!(Test-Path  "$UserDataRootDir\$InstanceName\Data"))) {
 	New-Item -ItemType "directory" -Path "$UserDataRootDir\$InstanceName\Data" | Out-Null
 }
 
-if(($InstanceRootDir -ne $UserTLogRootDir) -and (!(Test-Path  "$UserTLogRootDir\$InstanceName\TLog"))){
+if (($InstanceRootDir -ne $UserTLogRootDir) -and (!(Test-Path  "$UserTLogRootDir\$InstanceName\TLog"))) {
 	New-Item -ItemType "directory" -Path "$UserTLogRootDir\$InstanceName\TLog" | Out-Null
 }
 
-if(($InstanceRootDir -ne $TempdbDataRootDir) -and (!(Test-Path  "$TempdbDataRootDir\$InstanceName\TempDB"))){
+if (($InstanceRootDir -ne $TempdbDataRootDir) -and (!(Test-Path  "$TempdbDataRootDir\$InstanceName\TempDB"))) {
 	New-Item -ItemType "directory" -Path "$TempdbDataRootDir\$InstanceName\TempDB" | Out-Null
 }
 
-if(($InstanceRootDir -ne $TempdbTLogRootDir) -and (!(Test-Path  "$TempdbTLogRootDir\$InstanceName\TLog"))){
+if (($InstanceRootDir -ne $TempdbTLogRootDir) -and (!(Test-Path  "$TempdbTLogRootDir\$InstanceName\TLog"))) {
 	New-Item -ItemType "directory" -Path "$TempdbTLogRootDir\$InstanceName\TLog" | Out-Null
 }
 
@@ -391,6 +393,10 @@ if(($InstanceRootDir -ne $TempdbTLogRootDir) -and (!(Test-Path  "$TempdbTLogRoot
 [string]$ConfigFile = $ConfigFile -replace "PSReplaceInstRootDir", $InstanceRootDir
 [string]$ConfigFile = $ConfigFile -replace "PSReplaceBkpRootDir", $BackupRootDir
 [string]$ConfigFile = $ConfigFile -replace "PSReplaceUserDataRootDir", $UserDataRootDir
+#There's something weird with UserTLogRootDir
+if ([string]::IsNullOrEmpty($InstanceName)) {
+	$UserTLogRootDir = $UserDataRootDir
+}
 [string]$ConfigFile = $ConfigFile -replace "PSReplaceUserTLogRootDir", $UserTLogRootDir
 [string]$ConfigFile = $ConfigFile -replace "PSReplaceTempdbDataRootDir", $TempdbDataRootDir
 [string]$ConfigFile = $ConfigFile -replace "PSReplaceTempdbTLogRootDir", $TempdbTLogRootDir
@@ -480,7 +486,7 @@ while ($sqlcmdOut -ne "XYZ") {
 $sqlcmdOut = $sqlcmdOut -replace ". Run the RECONFIGURE statement to install" , ""
 Write-Host $sqlcmdOut
 
-if(!([string]::IsNullOrEmpty($CustomScript))){
+if (!([string]::IsNullOrEmpty($CustomScript))) {
 	Write-Host " Running custom script..."
 	$sqlcmdOut = sqlcmd -S $CmdInstance -U sa -P $saPwd -i "$CustomScript" -x  2>&1 | Out-String
 	#Not cleaning up this string
@@ -633,7 +639,7 @@ Write-Host " $InstallConfigFile"
 Write-Host " "
 Write-Host ("=" * 90)
 Write-Host "The machine needs to be restarted to complete the installation."
-if($AutoReboot -eq $false){
+if ($AutoReboot -eq $false) {
 	$RebootNow = Read-Host -Prompt "Restart now?(empty defaults to N)[Y/N]"
 }
 if (($RebootNow -eq "Y") -or ($AutoReboot)) {
