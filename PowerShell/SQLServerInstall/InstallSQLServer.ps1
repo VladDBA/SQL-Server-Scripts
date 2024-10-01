@@ -586,7 +586,7 @@ if ($InstallSSMS) {
 	#Check if SSMS 19 is installed, and install it if not
 	Write-Host " "
 	Write-Host " Checking if SSMS 19 or newer is installed..."
-	[string]$SSMSVers = Get-WmiObject -Class Win32_Product -Filter "Name = 'SQL Server Management Studio' and Version >= '19.0.0'" | Sort-Object -Descending -Property Version | Select-Object -ExpandProperty Version -First 1
+	[string]$SSMSVers = Get-CimInstance -Class Win32_Product -Filter "Name = 'SQL Server Management Studio' and Version >= '19.0.0'" | Sort-Object -Descending -Property Version | Select-Object -ExpandProperty Version -First 1
 	if ([string]::IsNullOrEmpty($SSMSVers)) {
 		Write-Host " ->SSMS 19 or newer is not installed, installing it now..."
 		$SSMSPath = $ScriptPath + "\SSMSInstallKit"
