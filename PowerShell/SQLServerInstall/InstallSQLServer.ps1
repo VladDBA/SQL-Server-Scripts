@@ -394,7 +394,7 @@ if (($InstanceRootDir -ne $TempdbTLogRootDir) -and (!(Test-Path  "$TempdbTLogRoo
 [string]$ConfigFile = $ConfigFile -replace "PSReplaceBkpRootDir", $BackupRootDir
 [string]$ConfigFile = $ConfigFile -replace "PSReplaceUserDataRootDir", $UserDataRootDir
 #There's something weird with UserTLogRootDir
-if ([string]::IsNullOrEmpty($InstanceName)) {
+if ([string]::IsNullOrEmpty($UserTLogRootDir)) {
 	$UserTLogRootDir = $UserDataRootDir
 }
 [string]$ConfigFile = $ConfigFile -replace "PSReplaceUserTLogRootDir", $UserTLogRootDir
