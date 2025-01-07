@@ -7,6 +7,7 @@
 	  uncomment line 136 ( the OPTION(MAXDOP 1) hint) and run the script again.
       
 	  Create date: 2024-02-28
+	  Last update date: 2025-01-07
       Author: Vlad Drumea
       Website: https://vladdba.com
       From: https://github.com/VladDBA/SQL-Server-Scripts/
@@ -32,32 +33,21 @@ DECLARE @Source TABLE
      [string2] NVARCHAR(198)
   );
 
-DECLARE @Row     INT,
-        @Records INT,
-        @Pass    TINYINT;
-
-SET @Records = 1179620; /* 1179620 records =~1GB*/
+DECLARE @Pass    TINYINT;
 
 /* Populate the source table
 	Note: I'm using a table variable because in my tests it works a bit faster than a temp table, 
 even though SQL Server ends up making a temp table for it in the background anyway.
 */
-SET @Row = 1;
 
-WHILE @Row <= @Records
-  BEGIN
       INSERT INTO @Source
-      VALUES      (@Row,
-                   N'Aa0Aa1Aa2Aa3Aa4Aa5Aa6Aa7Aa8Aa9Ab0Ab1Ab2Ab3Ab4Ab5Ab6Ab7Ab8Ab9Ac0Ac1Ac2Ac3Ac4Ac5Ac6Ac7Ac8Ac9Ad0Ad1Ad2Ad3Ad4Ad5Ad6Ad7Ad8Ad9Ae0Ae1Ae2Ae3Ae4Ae5Ae6Ae7Ae8Ae9Af0Af1Af2Af3Af4Af5Af6Af7Af8Af9Ag0Ag1Ag2Ag3Ag4Ag5',
-                   N'5gA4gA3gA2gA1gA0gA9fA8fA7fA6fA5fA4fA3fA2fA1fA0fA9eA8eA7eA6eA5eA4eA3eA2eA1eA0eA9dA8dA7dA6dA5dA4dA3dA2dA1dA0dA9cA8cA7cA6cA5cA4cA3cA2cA1cA0cA9bA8bA7bA6bA5bA4bA3bA2bA1bA0bA9aA8aA7aA6aA5aA4aA3aA2aA1aA0aA')
+      SELECT TOP(1179620) /* 1179620 records =~1GB*/
+                    1179620,
+                    N'Aa0Aa1Aa2Aa3Aa4Aa5Aa6Aa7Aa8Aa9Ab0Ab1Ab2Ab3Ab4Ab5Ab6Ab7Ab8Ab9Ac0Ac1Ac2Ac3Ac4Ac5Ac6Ac7Ac8Ac9Ad0Ad1Ad2Ad3Ad4Ad5Ad6Ad7Ad8Ad9Ae0Ae1Ae2Ae3Ae4Ae5Ae6Ae7Ae8Ae9Af0Af1Af2Af3Af4Af5Af6Af7Af8Af9Ag0Ag1Ag2Ag3Ag4Ag5',
+                    N'5gA4gA3gA2gA1gA0gA9fA8fA7fA6fA5fA4fA3fA2fA1fA0fA9eA8eA7eA6eA5eA4eA3eA2eA1eA0eA9dA8dA7dA6dA5dA4dA3dA2dA1dA0dA9cA8cA7cA6cA5cA4cA3cA2cA1cA0cA9bA8bA7bA6bA5bA4bA3bA2bA1bA0bA9aA8aA7aA6aA5aA4aA3aA2aA1aA0aA'
+FROM   sys.all_columns AS ac1
+       CROSS APPLY sys.all_columns AS ac2;
 
-      SET @Row += 1;
-
-      IF @Row > @Records
-        BEGIN
-            BREAK;
-        END;
-  END;
 
 /*Create relevant tables*/
 CREATE TABLE [speed_test]
@@ -178,8 +168,12 @@ SELECT DB_NAME()                                                  AS [database],
        COUNT([pass])                                              AS [passes],
        [physical_name]                                            AS [file_physical_name],
        [type_desc]                                                AS [file_type],
-       CAST(AVG([delta_written_MB]) AS NUMERIC(6, 2))             AS [written_per_pass_MB],
+       CAST(AVG([delta_written_MB]) AS NUMERIC(6, 2))             AS [avg_written_per_pass_MB],
        AVG([duration_ms])                                         AS [avg_duration_ms],
+	   CAST(
+	      CAST(AVG([delta_written_MB]) AS NUMERIC(6, 2)) / 
+	      CAST( AVG([duration_ms]) / 1000. AS NUMERIC(18,2)) 
+	   AS NUMERIC(18,2))                                          AS [avg_write_speed_MB/s],
        AVG(( [delta_io_stall_write_ms] / [delta_num_of_writes] )) AS [avg_io_stall_write_ms],
        AVG([delta_num_of_writes])                                 AS [avg_writes_per_pass],
        AVG([delta_size_on_disk_MB])                               AS [avg_file_size_increase_MB]
@@ -195,6 +189,10 @@ SELECT DB_NAME()                                                  AS [database],
        [type_desc]                                                AS [file_type],
        CAST(SUM([delta_written_MB]) AS NUMERIC(6, 2))             AS [total_written_MB],
        SUM([duration_ms])                                         AS [total_duration_ms],
+	   CAST(
+	   	   CAST(SUM([delta_written_MB]) AS NUMERIC(6, 2))/
+	   	   CAST((SUM([duration_ms]))/ 1000. AS NUMERIC(18,2))
+	   AS NUMERIC(18,2))                                          AS [total_MB_written_per_second],
        SUM(( [delta_io_stall_write_ms] / [delta_num_of_writes] )) AS [total_avg_io_stall_write_ms],
        SUM([delta_num_of_writes])                                 AS [total_writes],
        SUM([delta_size_on_disk_MB])                               AS [total_file_size_increase_MB]
@@ -214,6 +212,9 @@ SELECT DB_NAME()                                             AS [database],
        [delta_num_of_writes]                                 AS [writes],
        ( [delta_io_stall_write_ms] / [delta_num_of_writes] ) AS [avg_io_stall_write_ms],
        [delta_written_MB]                                    AS [written_MB],
+	   CAST( [delta_written_MB] /
+	     CAST([duration_ms] / 1000. AS NUMERIC(18,2))
+	   AS NUMERIC(18,2))                                     AS [write_speed_MB/s],
        [delta_size_on_disk_MB]                               AS [file_size_increase_MB]
 FROM   [io_stats_writes]
 ORDER  BY [pass],
