@@ -4,7 +4,7 @@
 	  or create a dedicated database on the same storage and config that you'd want to test.
 	  
 	  Note: If you're seeing suspiciously long times on databases with FULL recovery model, 
-	  uncomment line 136 ( the OPTION(MAXDOP 1) hint) and run the script again.
+	  uncomment line 126 ( the OPTION(MAXDOP 1) hint) and run the script again.
       
 	  Create date: 2024-02-28
 	  Last update date: 2025-01-07
@@ -123,7 +123,7 @@ WHILE @Pass <= 4
              [string1],
              [string2]
       FROM   @Source 
-	  --OPTION(MAXDOP 1)
+	  --OPTION(MAXDOP 1) /*Uncomment this if you see weird timings on databases using the Full recovery model*/
 	  ;
 	  CHECKPOINT;
 	  /*post-pass snapshot*/
@@ -173,7 +173,7 @@ SELECT DB_NAME()                                                  AS [database],
 	   CAST(
 	      CAST(AVG([delta_written_MB]) AS NUMERIC(6, 2)) / 
 	      CAST( AVG([duration_ms]) / 1000. AS NUMERIC(18,2)) 
-	   AS NUMERIC(18,2))                                          AS [avg_write_speed_MB/s],
+	   AS NUMERIC(18,2))                                            AS [avg_write_speed_MB/s],
        AVG(( [delta_io_stall_write_ms] / [delta_num_of_writes] )) AS [avg_io_stall_write_ms],
        AVG([delta_num_of_writes])                                 AS [avg_writes_per_pass],
        AVG([delta_size_on_disk_MB])                               AS [avg_file_size_increase_MB]
@@ -192,7 +192,7 @@ SELECT DB_NAME()                                                  AS [database],
 	   CAST(
 	   	   CAST(SUM([delta_written_MB]) AS NUMERIC(6, 2))/
 	   	   CAST((SUM([duration_ms]))/ 1000. AS NUMERIC(18,2))
-	   AS NUMERIC(18,2))                                          AS [total_MB_written_per_second],
+	   AS NUMERIC(18,2))                                            AS [total_write_speed_MB/s],
        SUM(( [delta_io_stall_write_ms] / [delta_num_of_writes] )) AS [total_avg_io_stall_write_ms],
        SUM([delta_num_of_writes])                                 AS [total_writes],
        SUM([delta_size_on_disk_MB])                               AS [total_file_size_increase_MB]
@@ -214,7 +214,7 @@ SELECT DB_NAME()                                             AS [database],
        [delta_written_MB]                                    AS [written_MB],
 	   CAST( [delta_written_MB] /
 	     CAST([duration_ms] / 1000. AS NUMERIC(18,2))
-	   AS NUMERIC(18,2))                                     AS [write_speed_MB/s],
+	   AS NUMERIC(18,2))                                       AS [write_speed_MB/s],
        [delta_size_on_disk_MB]                               AS [file_size_increase_MB]
 FROM   [io_stats_writes]
 ORDER  BY [pass],
