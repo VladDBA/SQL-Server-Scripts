@@ -45,7 +45,7 @@ even though SQL Server ends up making a temp table for it in the background anyw
                     1179620,
                     N'Aa0Aa1Aa2Aa3Aa4Aa5Aa6Aa7Aa8Aa9Ab0Ab1Ab2Ab3Ab4Ab5Ab6Ab7Ab8Ab9Ac0Ac1Ac2Ac3Ac4Ac5Ac6Ac7Ac8Ac9Ad0Ad1Ad2Ad3Ad4Ad5Ad6Ad7Ad8Ad9Ae0Ae1Ae2Ae3Ae4Ae5Ae6Ae7Ae8Ae9Af0Af1Af2Af3Af4Af5Af6Af7Af8Af9Ag0Ag1Ag2Ag3Ag4Ag5',
                     N'5gA4gA3gA2gA1gA0gA9fA8fA7fA6fA5fA4fA3fA2fA1fA0fA9eA8eA7eA6eA5eA4eA3eA2eA1eA0eA9dA8dA7dA6dA5dA4dA3dA2dA1dA0dA9cA8cA7cA6cA5cA4cA3cA2cA1cA0cA9bA8bA7bA6bA5bA4bA3bA2bA1bA0bA9aA8aA7aA6aA5aA4aA3aA2aA1aA0aA'
-FROM   sys.all_columns AS ac1
+      FROM   sys.all_columns AS ac1
        CROSS APPLY sys.all_columns AS ac2;
 
 
