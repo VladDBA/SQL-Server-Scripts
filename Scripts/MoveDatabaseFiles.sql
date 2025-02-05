@@ -5,7 +5,7 @@
          Author: Vlad Drumea
          Website: https://vladdba.com
          From: https://github.com/VladDBA/SQL-Server-Scripts/
-         More info: 
+         More info: https://vladdba.com/2025/02/06/move-sql-server-database-files-another-drive-folder/ 
          License: https://github.com/VladDBA/SQL-Server-Scripts/blob/main/LICENSE.md
          It generates commands to:
            - Set the database offline (if not tempdb) - T-SQL
@@ -20,6 +20,10 @@
          Usage:
            1. Set the database name 
            2. Set at least one of destination folder paths
+              - setting the same value for both destination parameters 
+                will move both data and log files to the same location
+              - setting the value for a single destination parameter 
+                will move only the files of that type
            3. Run the script in SSMS
            4. Copy the output and run it in SSMS and PowerShell as instructed
 */
@@ -117,7 +121,7 @@ WHERE  [servicename] LIKE N'SQL Server%'
        AND [servicename] NOT LIKE N'SQL Server Agent%'
        AND [filename] LIKE N'%sqlservr%'
 
-PRINT @PreHeader + N'##   Run in PowerShell opened as Administrator   ##'
+PRINT @PreHeader + N'##   Run in PowerShell opened as Administrator on the instance''s host   ##'
 
 /*Make sure that path exists, create it if not*/
 SET @Command = @LineFeed+N'#Make sure PS plays nice with icacls'
@@ -171,7 +175,7 @@ IF @DatabaseName = N'tempdb'
 	  AND [f].[type] IN (SELECT FType FROM @FileTypes);
 
       PRINT @Command;
-      PRINT @PreHeader + N'##   Run in PowerShell opened as Administrator   ##';
+      PRINT @PreHeader + N'##   Run in PowerShell opened as Administrator on the instance''s host   ##';
 
       SELECT @Command = N'#Restart the SQL Server service'
                         + @LineFeed
