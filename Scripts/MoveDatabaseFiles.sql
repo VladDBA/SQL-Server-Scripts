@@ -26,8 +26,8 @@
 
 SET NOCOUNT ON;
 DECLARE @DatabaseName      NVARCHAR(128),
-        @DataDestination   NVARCHAR(256),
-        @TLogDestination   NVARCHAR(256);
+        @DataDestination   NVARCHAR(200),
+        @TLogDestination   NVARCHAR(200);
 
 /*Set your database name and new destination folder paths here*/
 SELECT @DatabaseName    = N'',
