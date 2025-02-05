@@ -30,7 +30,7 @@ DECLARE @DatabaseName      NVARCHAR(128),
         @TLogDestination   NVARCHAR(256);
 
 /*Set your database name and new destination folder paths here*/
-SELECT @DatabaseName = N'',
+SELECT @DatabaseName    = N'',
        @DataDestination = N'',
        @TLogDestination = N'';
 
@@ -41,10 +41,8 @@ DECLARE @LineFeed       NVARCHAR(5) = CHAR(13) + CHAR(10),
         @ServiceAccount NVARCHAR(256),
         @PreHeader      NVARCHAR(20);
 DECLARE @FileTypes TABLE
-  (
-     [FType]    TINYINT,
-     [DestPath] NVARCHAR(256)
-  );
+    ([FType]    TINYINT,
+     [DestPath] NVARCHAR(256));
 
 SET @PreHeader = @LineFeed + REPLICATE(' ', 10)
 /*Clean input*/
@@ -59,12 +57,11 @@ IF ( DB_ID(@DatabaseName) ) IS NULL
 
       RETURN;
   END;
-
+/*Make sure at least one destination path is provided*/
 IF ( @DataDestination = N''
      AND @TLogDestination = N'' )
   BEGIN
       RAISERROR('You didn''t specify any destination path(s). Please provide the destination path(s) and try again.',16,1);
-
       RETURN;
   END;
 
@@ -120,7 +117,7 @@ WHERE  [servicename] LIKE N'SQL Server%'
        AND [servicename] NOT LIKE N'SQL Server Agent%'
        AND [filename] LIKE N'%sqlservr%'
 
-PRINT @PreHeader + N'##   Run in PowerShell   ##'
+PRINT @PreHeader + N'##   Run in PowerShell opened as Administrator   ##'
 
 /*Make sure that path exists, create it if not*/
 SET @Command = @LineFeed+N'#Make sure PS plays nice with icacls'
@@ -174,7 +171,7 @@ IF @DatabaseName = N'tempdb'
 	  AND [f].[type] IN (SELECT FType FROM @FileTypes);
 
       PRINT @Command;
-      PRINT @PreHeader + N'##   Run in PowerShell   ##';
+      PRINT @PreHeader + N'##   Run in PowerShell opened as Administrator   ##';
 
       SELECT @Command = N'#Restart the SQL Server service'
                         + @LineFeed
