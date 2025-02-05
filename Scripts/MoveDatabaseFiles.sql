@@ -1,7 +1,7 @@
 /*
          Description:  This script generates the required T-SQL and PowerShell commands 
         to move database data and/or transaction log files to new locations.
-         Create date: 2024-03-10
+         Create date: 2025-02-05
          Author: Vlad Drumea
          Website: https://vladdba.com
          From: https://github.com/VladDBA/SQL-Server-Scripts/
