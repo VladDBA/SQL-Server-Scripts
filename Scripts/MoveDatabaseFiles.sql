@@ -30,9 +30,9 @@ DECLARE @DatabaseName      NVARCHAR(128),
         @TLogDestination   NVARCHAR(200);
 
 /*Set your database name and new destination folder paths here*/
-SELECT @DatabaseName    = N'',
-       @DataDestination = N'',
-       @TLogDestination = N'';
+SELECT @DatabaseName    = N'',  /*Name of the database you want to move files for*/
+       @DataDestination = N'',  /*New path for data files*/
+       @TLogDestination = N'';  /*New path for transaction log files*/
 
 /*Internal variables*/
 DECLARE @LineFeed       NVARCHAR(5) = CHAR(13) + CHAR(10),
