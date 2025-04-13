@@ -1,7 +1,7 @@
 /* 
    Get SQL Server client connection information
    Author: Vlad Drumea
-   More info:
+   More info: https://vladdba.com/2025/04/13/query-connection-information-in-sql-server/
    From https://github.com/VladDBA/SQL-Server-Scripts/
    License https://github.com/VladDBA/SQL-Server-Scripts/blob/main/LICENSE.md
 */
