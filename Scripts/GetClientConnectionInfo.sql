@@ -12,23 +12,23 @@ SELECT [d].[name]                                                               
        ISNULL([s].[host_name], N'N/A')                                                       AS [client_host_name],
        REPLACE(REPLACE([c].[client_net_address], N'<', N''), N'>', N'')                      AS [client_IP],
        [c].[net_transport]                                                                   AS [protocol],
-	   ISNULL(NULLIF('preconnect '+ CAST(SUM(CASE 
-	                                              WHEN LOWER([s].[status]) = N'preconnect' 
-												  THEN 1 ELSE 0 
-												END) AS VARCHAR(20)), 'preconnect 0')+'; ', '')
+	   ISNULL(NULLIF(CAST(SUM(CASE 
+	                            WHEN LOWER([s].[status]) = N'preconnect' 
+	   						    THEN 1 ELSE 0 
+	   						  END) AS VARCHAR(20))+ ' preconnect', '0 preconnect')+'; ', '')
 	   
-       +ISNULL(NULLIF('dormant '+ CAST(SUM(CASE 
-	                                           WHEN LOWER([s].[status]) = N'dormant' 
-											   THEN 1 ELSE 0 
-											 END) AS VARCHAR(20)), 'dormant 0')+'; ', '')
-       +ISNULL(NULLIF('running '+ CAST(SUM(CASE 
-	                                         WHEN LOWER([s].[status]) = N'running' 
-										     THEN 1 ELSE 0 
-										   END) AS VARCHAR(20)), 'running 0')+'; ', '')
-       +ISNULL(NULLIF('sleeping '+ CAST(SUM(CASE 
-	                                          WHEN LOWER([s].[status]) = N'sleeping' 
-										      THEN 1 ELSE 0 
-											END) AS VARCHAR(20)), 'sleeping 0'), '')         AS [sessions_by_state],
+	   +ISNULL(NULLIF(CAST(SUM(CASE 
+	                             WHEN LOWER([s].[status]) = N'dormant' 
+	   							 THEN 1 ELSE 0 
+	   						   END) AS VARCHAR(20))+' dormant', '0 dormant')+'; ', '')
+	   +ISNULL(NULLIF(CAST(SUM(CASE 
+	                             WHEN LOWER([s].[status]) = N'running' 
+	   							 THEN 1 ELSE 0 
+	   						   END) AS VARCHAR(20))+' running', '0 running')+'; ', '')
+	   +ISNULL(NULLIF(CAST(SUM(CASE 
+	                             WHEN LOWER([s].[status]) = N'sleeping' 
+	   							 THEN 1 ELSE 0 
+	   						   END) AS VARCHAR(20))+' sleeping', '0 sleeping'), '')          AS [sessions_by_state],
        MAX([c].[connect_time])                                                               AS [oldest_connection_time],
        MIN([c].[connect_time])                                                               AS [newest_connection_time],
        [s].[program_name]                                                                    AS [program]
