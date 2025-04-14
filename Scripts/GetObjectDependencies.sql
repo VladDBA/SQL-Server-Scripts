@@ -54,8 +54,8 @@ WHERE  [sed].[referencing_id] = CASE
                                   WHEN @ObjectName <> N'' THEN OBJECT_ID(@ObjectName)
                                   ELSE [sed].[referencing_id]
                                 END
-        OR [sed].[referenced_entity_name] = CASE
-                                              WHEN @ObjectName <> N'' THEN @ObjectName
-                                              ELSE [sed].[referenced_entity_name]
-                                            END
-ORDER BY [referencing_object_name];
+        OR [sed].[referenced_id] = CASE
+                                     WHEN @ObjectName <> N'' THEN OBJECT_ID(@ObjectName)
+                                     ELSE [sed].[referenced_id]
+                                   END
+ORDER  BY [referencing_object_name];
