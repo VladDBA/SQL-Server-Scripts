@@ -1,7 +1,7 @@
 /* 
    Get object dependencies 
    Author: Vlad Drumea
-   More info: 
+   More info: https://vladdba.com/2025/04/15/query-object-dependencies-sql-server/
    From https://github.com/VladDBA/SQL-Server-Scripts/
    License https://github.com/VladDBA/SQL-Server-Scripts/blob/main/LICENSE.md
 */
