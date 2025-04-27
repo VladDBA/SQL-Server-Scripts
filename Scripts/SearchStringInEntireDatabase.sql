@@ -75,6 +75,8 @@ WITH QueryParts AS
             FROM INFORMATION_SCHEMA.COLUMNS AS c
             WHERE c.TABLE_CATALOG=t.TABLE_CATALOG AND c.TABLE_SCHEMA=t.TABLE_SCHEMA AND c.TABLE_NAME=t.TABLE_NAME
               AND (DATA_TYPE LIKE N'%char' OR DATA_TYPE LIKE N'%text')
+			  /*Only search in columns that can actually hold a string the length of the search term*/
+			  AND CHARACTER_MAXIMUM_LENGTH >= LEN(@SearchString)
             FOR XML PATH('')
           ),1,3,'') AS [WhereClause]
     FROM INFORMATION_SCHEMA.TABLES AS t
