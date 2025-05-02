@@ -1,7 +1,7 @@
 /* 
    Get NULL counts for all columns in a table
    Author: Vlad Drumea
-   More info: 
+   More info: https://vladdba.com/2025/05/02/count-all-nulls-in-a-table-in-sql-server/
    From https://github.com/VladDBA/SQL-Server-Scripts/
    License https://github.com/VladDBA/SQL-Server-Scripts/blob/main/LICENSE.md
 */
