@@ -14,7 +14,8 @@ DECLARE @TabName NVARCHAR(261);
 	SchemaName.TableName
 	[SchemaName].[TableName]
 */
-SET @TabName = N'';
+SET @TabName = N'Person.Person';
+
 
 /*Make sure the table name is valid*/
 IF OBJECT_ID(@TabName, N'U') IS NULL
@@ -81,35 +82,37 @@ FETCH NEXT FROM NullColl INTO @ColName, @ColID, @DataType;
 
 WHILE @@FETCH_STATUS = 0
   BEGIN
-BEGIN
-            SET @SQL = N'INSERT INTO null_cols_table ([table_name], [column_name], [data_type],[column_id] ,[nullable],[time_of_check])'
-			SET @SQL += @LineFeed + N'VALUES (@TabNameIn, @ColNameIn,@DataTypeIn, @ColIDIn, 1,@TimeStampIn);'
+      BEGIN
+          SET @SQL = N'INSERT INTO null_cols_table ([table_name], [column_name], [data_type],[column_id] ,[nullable],[time_of_check])'
+          SET @SQL += @LineFeed
+                      + N'VALUES (@TabNameIn, @ColNameIn,@DataTypeIn, @ColIDIn, 1,@TimeStampIn);'
 
-            EXECUTE sp_executesql
-              @SQL,
-              @ParmDefInsert,
-              @TabNameIn  = @TabName,
-              @ColNameIn  = @ColName,
-              @DataTypeIn = @DataType,
-              @ColIDIn    = @ColID,
-              @TimeStampIn= @TimeStamp;
-        END;
+          EXECUTE sp_executesql
+            @SQL,
+            @ParmDefInsert,
+            @TabNameIn  = @TabName,
+            @ColNameIn  = @ColName,
+            @DataTypeIn = @DataType,
+            @ColIDIn    = @ColID,
+            @TimeStampIn= @TimeStamp;
+      END;
 
       BEGIN
+          SET @SQL = N'UPDATE null_cols_table SET [null_count] = (SELECT COUNT(*) FROM '
+                     + @TabName + N' WITH(NOLOCK) WHERE ' + @ColName
+                     + N' IS NULL) ' + @LineFeed
+                     + N'WHERE [table_name] = @TabNameIn'
+                     + @LineFeed
+                     + N'AND [column_name] = @ColNameIn'
+                     + @LineFeed
+                     + N'AND [time_of_check] = @TimeStampIn;';
 
-                SET @SQL = N'UPDATE null_cols_table SET [null_count] = (SELECT COUNT(*) FROM '
-                           +@TabName+ N' WITH(NOLOCK) WHERE '
-                           +@ColName+ N' IS NULL) '
-						   +@LineFeed+ N'WHERE [table_name] = @TabNameIn'
-                           +@LineFeed+ N'AND [column_name] = @ColNameIn'
-                           +@LineFeed+ N'AND [time_of_check] = @TimeStampIn;';
-
-                EXECUTE sp_executesql
-                  @SQL,
-                  @ParmDefUpdate,
-                  @TabNameIn  = @TabName,
-                  @ColNameIn  = @ColName,
-                  @TimeStampIn= @TimeStamp;
+          EXECUTE sp_executesql
+            @SQL,
+            @ParmDefUpdate,
+            @TabNameIn  = @TabName,
+            @ColNameIn  = @ColName,
+            @TimeStampIn= @TimeStamp;
       END;
 
       FETCH NEXT FROM NullColl INTO @ColName, @ColID, @DataType;
@@ -119,7 +122,7 @@ CLOSE NullColl;
 
 DEALLOCATE NullColl;
 
-/*Cursor to populate result table with non-nullable columns*/
+/*Populate result table with non-nullable columns*/
 DECLARE NotNull CURSOR LOCAL STATIC READ_ONLY FORWARD_ONLY FOR
   SELECT [name],
          [column_id],
@@ -128,39 +131,29 @@ DECLARE NotNull CURSOR LOCAL STATIC READ_ONLY FORWARD_ONLY FOR
   WHERE  [object_id] = OBJECT_ID(@TabName)
          AND [is_nullable] = 0;
 
-OPEN NotNull;
-
-FETCH NEXT FROM NotNull INTO @ColName, @ColID, @DataType;
-
-WHILE @@FETCH_STATUS = 0
-  BEGIN
-        BEGIN
-            SET @SQL = N'INSERT INTO null_cols_table ([table_name], [column_name], [data_type],[column_id],[null_count], [nullable],[time_of_check])'
-			SET @SQL +=@LineFeed+N'VALUES  ( @TabNameIn, @ColNameIn, @DataTypeIn, @ColIDIn, 0, 0, @TimeStampIn);';
-
-            EXECUTE sp_executesql
-              @SQL,
-              @ParmDefInsert,
-              @TabNameIn  = @TabName,
-              @ColNameIn  = @ColName,
-              @DataTypeIn = @DataType,
-              @ColIDIn    = @ColID,
-              @TimeStampIn= @TimeStamp;
-        END
-
-      FETCH NEXT FROM NotNull INTO @ColName, @ColID, @DataType;
-  END;
-
-CLOSE NotNull;
-
-DEALLOCATE NotNull;
+INSERT INTO [null_cols_table]
+            ([table_name],
+             [column_name],
+             [data_type],
+             [column_id],
+             [null_count],
+             [nullable],
+             [time_of_check])
+SELECT @TabName,
+       [name],
+       TYPE_NAME([system_type_id]) AS [data_type],
+       [column_id],
+       0, 0, @TimeStamp
+FROM   sys.[all_columns]
+WHERE  [object_id] = OBJECT_ID(@TabName)
+       AND [is_nullable] = 0;
 
 SET @SQL = N'UPDATE null_cols_table  SET record_count = (SELECT COUNT(*) FROM '
-           +@LineFeed + @TabName +N' WITH(NOLOCK))'
-		   +@LineFeed+N'WHERE [table_name] = @TabNameIn'
-		   +@LineFeed+N'AND [time_of_check] = @TimeStampIn;';
-
-PRINT @SQL
+           + @LineFeed + @TabName + N' WITH(NOLOCK))'
+           + @LineFeed
+           + N'WHERE [table_name] = @TabNameIn'
+           + @LineFeed
+           + N'AND [time_of_check] = @TimeStampIn;';
 
 EXECUTE sp_executesql
   @SQL,
@@ -173,4 +166,4 @@ EXECUTE sp_executesql
 SELECT *
 FROM   [null_cols_table]
 WHERE  [table_name] = @TabName
-AND [time_of_check] = @TimeStamp; 
+       AND [time_of_check] = @TimeStamp; 
