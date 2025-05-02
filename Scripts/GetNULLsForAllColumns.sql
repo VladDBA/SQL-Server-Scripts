@@ -98,8 +98,9 @@ BEGIN
       BEGIN
 
                 SET @SQL = N'UPDATE null_cols_table SET [null_count] = (SELECT COUNT(*) FROM '
-                           +@LineFeed + @TabName + N' WITH(NOLOCK) WHERE @ColNameIn IS NULL) '
-						   +@LineFeed+N'WHERE [table_name] = @TabNameIn'
+                           +@TabName+ N' WITH(NOLOCK) WHERE '
+                           +@ColName+ N' IS NULL) '
+						   +@LineFeed+ N'WHERE [table_name] = @TabNameIn'
                            +@LineFeed+ N'AND [column_name] = @ColNameIn'
                            +@LineFeed+ N'AND [time_of_check] = @TimeStampIn;';
 
