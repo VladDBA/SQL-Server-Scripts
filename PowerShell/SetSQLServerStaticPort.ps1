@@ -56,6 +56,8 @@ if($Version -eq 2016){
     $MajorVersion = 15
 } elseif ($Version -eq 2022) {
     $MajorVersion = 16
+} elseif ($Version -eq 2025) {
+    $MajorVersion = 17
 }
 
 ##Make sure the TCPIP protocol is enabled
