@@ -48,7 +48,7 @@ if ((New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsI
     Exit
 }
 ##Figure out SQL Server build number
-if($Version -eq 2016){
+if ($Version -eq 2016) {
     $MajorVersion = 13
 } elseif ($Version -eq 2017) {
     $MajorVersion = 14
@@ -63,7 +63,7 @@ if($Version -eq 2016){
 ##Make sure the TCPIP protocol is enabled
 $TcpStateRegPath = "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft SQL Server\MSSQL$MajorVersion.$InstanceName\MSSQLServer\SuperSocketNetLib\Tcp"
 [int]$IsTcpEnabled = Get-ItemProperty -Path Registry::"$TcpStateRegPath" -Name Enabled | Select-Object -ExpandProperty Enabled
-if($IsTcpEnabled -eq 0){
+if ($IsTcpEnabled -eq 0) {
     Write-Host " The TCP/IP protocol for instance $InstanceName is disabled. Enabling it now."
     Set-ItemProperty -Path Registry::"$TcpStateRegPath" -Name Enabled -Value 1
 }
@@ -71,7 +71,7 @@ if($IsTcpEnabled -eq 0){
 ##Make sure the Listen ALL is set to Yes protocol is enabled
 $TcpStateRegPath = "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft SQL Server\MSSQL$MajorVersion.$InstanceName\MSSQLServer\SuperSocketNetLib\Tcp"
 [int]$IsTcpEnabled = Get-ItemProperty -Path Registry::"$TcpStateRegPath" -Name ListenOnAllIPs | Select-Object -ExpandProperty ListenOnAllIPs
-if($IsTcpEnabled -eq 0){
+if ($IsTcpEnabled -eq 0) {
     Write-Host " The TCP/IP protocol for instance $InstanceName is not set to listen on all IPs.`n  Setting Listen All to Yes now."
     Set-ItemProperty -Path Registry::"$TcpStateRegPath" -Name ListenOnAllIPs -Value 1
 }
@@ -84,8 +84,7 @@ foreach ($PortPath in $PortPaths) {
         Set-ItemProperty -Path Registry::"$PortPath" -Name TcpDynamicPorts -Value ''
         #And disable IP to avoid it overriding IPALL
         Set-ItemProperty -Path Registry::"$PortPath" -Name Enabled -Value 0
-    }
-    else {
+    } else {
         #clear out current dynamic TCP port value and set static TCP port
         Set-ItemProperty -Path Registry::"$PortPath" -Name TcpDynamicPorts -Value ''
         Set-ItemProperty -Path Registry::"$PortPath" -Name TcpPort -Value $StaticPort
@@ -107,8 +106,7 @@ if ($AddFirewallRules) {
     try {
         $TestRule = Get-NetFirewallRule -DisplayName "SQL Server Browser service" -ErrorAction Stop | Select-Object -ExpandProperty DisplayName -ErrorAction Stop
         Write-Host " ->A firewall rule with the name '$TestRule' already exists."
-    }
-    catch {
+    } catch {
         Write-Host " ->Adding firewall rule 'SQL Server Browser service'."
         #Get path of SQL Server Browser executable
         $SQLServerBrowserFWProgram = Get-WmiObject -Class win32_service -Filter "DisplayName = 'SQL Server Browser'" | Select-object -ExpandProperty PathName

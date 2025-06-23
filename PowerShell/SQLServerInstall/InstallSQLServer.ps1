@@ -203,16 +203,13 @@ if ($InstRootDir -like "*\") {
 # is it a default instance or a named one?
 if (($IsDefault) -and ([string]::IsNullOrEmpty($InstanceName))) {
 	$InstanceName = "MSSQLSERVER"
-}
-elseif (($IsDefault) -and (!([string]::IsNullOrEmpty($InstanceName))) -and ($InstanceName -ne "MSSQLSERVER")) {
+} elseif (($IsDefault) -and (!([string]::IsNullOrEmpty($InstanceName))) -and ($InstanceName -ne "MSSQLSERVER")) {
 	Write-Host " You've set -IsDefault while also providing a value for -InstanceName." -fore Red
 	Write-Host " ->You can't have a named default instance. Using $InstanceName as the instance name"
 	$IsDefault = $false
-}
-elseif (($IsDefault) -and (!([string]::IsNullOrEmpty($InstanceName))) -and ($InstanceName -eq "MSSQLSERVER")) {
+} elseif (($IsDefault) -and (!([string]::IsNullOrEmpty($InstanceName))) -and ($InstanceName -eq "MSSQLSERVER")) {
 	Write-Host " You don't have to provide $InstanceName as the instance name when using the -IsDefault switch." fore Yellow
-}
-elseif (($IsDefault -eq $False) -and ([string]::IsNullOrEmpty($InstanceName))) {
+} elseif (($IsDefault -eq $False) -and ([string]::IsNullOrEmpty($InstanceName))) {
 	Write-Host " An instance name was not provided." -Fore Yellow
 	while ([string]::IsNullOrEmpty($InstanceName)) {
 		$InstanceName = Read-Host -Prompt "Please provide a name for your instance:"
@@ -224,8 +221,7 @@ if ($StaticPort -ne 0) {
 	if ($StaticPort -le 1023) {
 		Write-Host " I'm not the network police, but you're opting to use a well-known port." -fore Yellow
 		Write-Host " ->This can lead to port conflicts between your instance and other services." -fore Yellow
-	}
- elseif ($StaticPort -eq 1434) {
+	} elseif ($StaticPort -eq 1434) {
 		Write-Host " $StaticPort is used by the SQL Server Browser service and should be left alone." fore yellow
 		Write-Host " ->Incrementing port number by 1" -fore Yellow
 		$StaticPort += 1
@@ -248,16 +244,14 @@ if ($AutoMaxMemory) {
 	$10PercentRAM = [math]::Round($10PercentRAM)
 	if (4096 -ge $10Percent) { 
 		$MaxMemoryMB = $TotalRAM - 4096 
-	}
- else { 
+	} else { 
 		$MaxMemoryMB = $TotalRAM - $10Percent 
 	}
 	if ($MaxMemoryMB -lt 0) {
 		$MaxMemoryMB = 4096
 		Write-Host " Installed physical memory could not be determined."
 		Write-Host " ->Max Memory has defaulted to " -NoNewline
-	}
- else {
+	} else {
 		Write-Host " You've opted to automatically set Max Memory."
 		Write-Host " ->Max Memory has been calculated as " -NoNewline
 	}
@@ -269,8 +263,7 @@ if ($AutoMaxMemory) {
 if ($InstanceName -eq "MSSQLSERVER") {
 	$ConfigTemplateName = Get-ChildItem -Path $ScriptPath -name *_DefaultInstTemplate.ini
 	$Version = $ConfigTemplateName -replace "_DefaultInstTemplate.ini", ""
-}
-else {
+} else {
 
 	$ConfigTemplateName = Get-ChildItem -Path $ScriptPath -name *_NamedInstTemplate.ini
 	$Version = $ConfigTemplateName -replace "_NamedInstTemplate.ini", ""
@@ -279,19 +272,16 @@ else {
 #Determine build version
 if ($Version -eq "2022") {
 	$MajorVersion = "16"
-}
-elseif ($Version -eq "2019") {
+} elseif ($Version -eq "2019") {
 	$MajorVersion = "15"
-}
-elseif ($Version -eq "2017") {
+} elseif ($Version -eq "2017") {
 	$MajorVersion = "14"
 }
 
 #Set SQLCMD instance name
 if ($InstanceName -eq "MSSQLSERVER") {
 	$CmdInstance = "localhost"
-}
-else {
+} else {
 	$CmdInstance = "localhost\$InstanceName"
 }
 
@@ -322,14 +312,12 @@ if (Test-Path $InstancePath) {
 		Write-Host " ->Attempting to rename it..."
 		Rename-Item -Path $InstancePath -NewName $InstanceOldPath -ErrorAction Stop	
 		Write-Host " ->Old instance directory renamed to $InstanceOldPath."
-	}
-	catch {
+	} catch {
 		#Might fail if not running from elevated PS, so trying elevated PS too
 		try {
 			Start-Process -Wait -FilePath "powershell" -Verb RunAs -ArgumentList "-command Rename-Item -Path $InstancePath -NewName $InstanceOldPath" -ErrorAction Stop
 			Write-Host " ->Old instance directory renamed to $InstanceOldPath."	
-		}
-		catch {
+		} catch {
 			Write-Host " ->Failed to rename the directory" -fore Red
 			Read-Host -Prompt "Press Enter to end script execution."
 			Exit
@@ -344,8 +332,7 @@ if (([string]::IsNullOrEmpty($WinSysadminAccount)) -or ($WinSysadminAccount -eq 
 	# Use admin account as a fallback in case user account can't be retrieved
 	$HasWinSysadminAccount = "N"
 	$WinSysadminAccount = "Administrator"
-}
-else {
+} else {
 	$HasWinSysadminAccount = "Y"
 }
 
@@ -356,8 +343,7 @@ if (!(Test-Path C:\Temp)) {
 #Get physical core count
 try {
 	[int]$CoreCount = ( (Get-CimInstance -ClassName Win32_Processor).NumberOfCores | Measure-Object -Sum).Sum
-}
-catch {
+} catch {
 	Write-Host " Cannot determine number of CPU cores, defaulting to 4." -fore Yellow
 	[int]$CoreCount = 4
 }
@@ -497,8 +483,7 @@ Write-Host " Instance configuration finished." -Fore Green
 $CUPath = $ScriptPath + "\CUInstallKit"
 try {
 	$CUKit = Get-ChildItem -Path $CUPath -name SQLServer$Version-KB*-x64.exe | Sort-Object -Descending | Select-Object -first 1
-}
-catch {
+} catch {
 	Write-Host " Patch kit not found, skipping instance patching."
 }
 if ((!([string]::IsNullOrEmpty($CUKit))) -and ($DontPatch -ne $true)) {
@@ -518,8 +503,7 @@ try {
 		Write-Host " Instance version: $VersInfo"
 	}
 	
-}
-catch {
+} catch {
 	Write-Host " Instance version info could not be obtained."
 }
 
@@ -531,8 +515,7 @@ if ($StaticPort -ne 0) {
 		if ($PortPath -notlike "*IPAll") {
 			#disable dynamic TCP port
 			Set-ItemProperty -Path Registry::"$PortPath" -Name TcpDynamicPorts -Value ''
-		}
-		else {
+		} else {
 			#clear out current dynamic TCP port value and set static TCP port
 			Set-ItemProperty -Path Registry::"$PortPath" -Name TcpDynamicPorts -Value ''
 			Set-ItemProperty -Path Registry::"$PortPath" -Name TcpPort -Value $StaticPort
@@ -553,8 +536,7 @@ if ($AddFirewallRules) {
 		#default instance port
 		$SQLServerFWDescription = "Inbound rule for SQL Server $InstanceName to allow connections to TCP port 1433"
 		New-NetFirewallRule -DisplayName "SQL Server $InstanceName" -Description $SQLServerFWDescription -Direction Inbound -Program $SQLServerFWProgram -LocalPort 1433 -Protocol TCP -Action Allow | Out-Null
-	}
- else {
+	} else {
 		$SQLServerFWDescription = "Inbound rule for SQL Server $InstanceName to allow connections to TCP port $StaticPort"
 		New-NetFirewallRule -DisplayName "SQL Server $InstanceName" -Description $SQLServerFWDescription -Direction Inbound -Program $SQLServerFWProgram -LocalPort $StaticPort -Protocol TCP -Action Allow | Out-Null
 	}
@@ -563,8 +545,7 @@ if ($AddFirewallRules) {
 		$TestRule = Get-NetFirewallRule -DisplayName "SQL Server Browser service" -ErrorAction Stop | Select-Object -ExpandProperty DisplayName -ErrorAction Stop
 		Write-Host " ->A firewall rule with the name '$TestRule' already exists."
 		$BrowserRuleExists = 'Y'
-	}
-	catch {
+	} catch {
 		Write-Host " ->Adding firewall rule 'SQL Server Browser service'."
 		$BrowserRuleExists = 'N'
 		#Get path of SQL Server Browser executable
@@ -592,16 +573,14 @@ if ($InstallSSMS) {
 		$SSMSPath = $ScriptPath + "\SSMSInstallKit"
 		try {
 			$SSMSKit = Get-ChildItem -Path $SSMSPath -name SSMS-Setup*.exe | Sort-Object -Descending | Select-Object -first 1
-		}
-		catch {
+		} catch {
 			Write-Host " SSMS kit not found, skipping SSMS installation."
 		}
 		if (!([string]::IsNullOrEmpty($SSMSKit))) {
 			Start-Process -Wait -FilePath "$SSMSPath\$SSMSKit" -ArgumentList "/Install /passive /norestart"
 		}
 	 
-	}
-	else {
+	} else {
 		Write-Host " ->SSMS $SSMSVers already installed."
 	}
 }
@@ -612,8 +591,7 @@ Write-Host "Done" -Fore Green
 Write-Host " Instance: " -NoNewline
 if ($InstanceName -eq "MSSQLSERVER") {
 	Write-Host "$HostName"
-}
-else {
+} else {
 	Write-Host "$HostName\$InstanceName"
 }
 Write-Host " Instance directory: "
@@ -646,7 +624,6 @@ if (($RebootNow -eq "Y") -or ($AutoReboot)) {
 	Write-Host "The machine will be restarted in 5 seconds..."
 	Start-Sleep -Seconds 5
 	Restart-Computer
-}
-else {
+} else {
 	Read-Host -Prompt "Press Enter to end scritp execution."
 }
