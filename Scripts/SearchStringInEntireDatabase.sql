@@ -9,7 +9,7 @@
 
 SET NOCOUNT ON;
 
-DECLARE @SearchString  NVARCHAR(500)=N'SAS|KLANT|412372',/*Your string goes here*/
+DECLARE @SearchString  NVARCHAR(500)=N'',/*Your string goes here*/
         @UseLike       BIT = 1,/* set to 1 will do LIKE '%String%', 0 does = 'String'*/
         @IsUnicode     BIT = 1,/* set to 1 will treat the @SearchString as Unicode in the WHERE clause, 
                                   set to 0 will treat it as non-Unicode - recommended when dealing with (var)char or text columns
