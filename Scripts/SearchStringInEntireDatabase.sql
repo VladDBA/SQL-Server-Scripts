@@ -9,10 +9,11 @@
 
 SET NOCOUNT ON;
 
-DECLARE @SearchString  NVARCHAR(500)=N'SomeString',/*Your string goes here*/
+DECLARE @SearchString  NVARCHAR(500)=N'SAS|KLANT|412372',/*Your string goes here*/
         @UseLike       BIT = 1,/* set to 1 will do LIKE '%String%', 0 does = 'String'*/
         @IsUnicode     BIT = 1,/* set to 1 will treat the @SearchString as Unicode in the WHERE clause, 
-                                  set to 0 will treat it as non-Unicode - recommended when dealing with (var)char or text columns*/
+                                  set to 0 will treat it as non-Unicode - recommended when dealing with (var)char or text columns
+                                  the script also matches the input data type with that of the column to avoid performance issues caused by upconverting*/
         @CaseSensitive BIT = 0,/*set this to 1 only if you use a case-sensitive collation and are not sure about the case of the string*/
         @SQL           NVARCHAR(MAX),
         @TableName     NVARCHAR(500),
@@ -51,23 +52,35 @@ WITH QueryParts AS
           (
 		  /*Build the WHERE clause*/
             SELECT N'OR ' + 
-			CASE 
+			CASE
+              WHEN DATA_TYPE LIKE N'%text'
+              THEN N'CAST('
+              ELSE N''
+              END +
+            CASE 
 			 WHEN @CaseSensitive = 1 
 			 THEN N'LOWER('+ QUOTENAME(c.COLUMN_NAME) + N')'
 			 ELSE  QUOTENAME(c.COLUMN_NAME)
 			END +
+            CASE
+              WHEN DATA_TYPE = N'ntext'
+              THEN N' AS NVARCHAR(MAX))'
+              WHEN DATA_TYPE = N'text'
+              THEN N' AS VARCHAR(MAX))'
+              ELSE N''
+              END +
 			CASE
 			WHEN @UseLike = 1
 			 THEN N' LIKE '+
 			  CASE
-			   WHEN @IsUnicode = 1
+			   WHEN @IsUnicode = 1 AND DATA_TYPE LIKE N'n%'
 			   THEN N'N'
 			   ELSE N''
 			   END +
 			  N'''%' + @SearchString + N'%'' '
 			  ELSE N' = '+
 			  CASE
-			   WHEN @IsUnicode = 1
+			   WHEN @IsUnicode = 1 AND DATA_TYPE LIKE N'n%'
 			   THEN N'N'
 			   ELSE N''
 			   END + N'''' + @SearchString + N''' '
