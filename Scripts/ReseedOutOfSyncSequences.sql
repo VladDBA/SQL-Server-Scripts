@@ -47,7 +47,6 @@ FETCH NEXT FROM seq_reseed_cursor INTO @TabName, @ColName, @SeqName, @CurrVal;
 
 WHILE @@FETCH_STATUS = 0
   BEGIN
-      -- SELECT @CurrVal = CAST(current_value AS BIGINT) FROM sys.sequences WHERE [name] = @SeqName;
       SET @SQL = N'SELECT @MaxIDOut = ISNULL(MAX('
                  + QUOTENAME(@ColName) + N'),0) FROM ' + @TabName
                  + N' WITH (NOLOCK);'
