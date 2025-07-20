@@ -13,9 +13,8 @@
 	License: https://github.com/VladDBA/SQL-Server-Scripts/blob/main/LICENSE.md
 	Usage: 
 	  1. Paste this script in a Query Editor window.
-    2. Execute it.
-    3. Mock whoever thought it was a good idea to use sequences with default constraints instead of identity columns.
-
+	  2. Execute it.
+	  3. Mock whoever thought it was a good idea to use sequences with default constraints instead of identity columns.
 */
 DECLARE @TabName  NVARCHAR(261),
         @ColName  SYSNAME,
