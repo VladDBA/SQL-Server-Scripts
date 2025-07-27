@@ -44,8 +44,8 @@ param(
 )
 
 if ((New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator) -ne $true) { 
-    Write-Host " You need to run PowerShell as administrator for this script to work."  -fore Red
-    Exit
+    Write-Host " You need to run PowerShell as administrator for this script to work." -fore Red
+    exit
 }
 ##Figure out SQL Server build number
 if ($Version -eq 2016) {
@@ -96,7 +96,7 @@ if ($AddFirewallRules) {
     Write-Host " Adding firewall rules..."
     Write-Host " ->Adding firewall rule 'SQL Server $InstanceName'."
     #Get path of SQL Server executable for this instance
-    $SQLServerFWProgram = Get-WmiObject -Class win32_service -Filter "DisplayName = 'SQL Server ($InstanceName)'" | Select-object -ExpandProperty PathName
+    $SQLServerFWProgram = Get-WmiObject -Class win32_service -Filter "DisplayName = 'SQL Server ($InstanceName)'" | Select-Object -ExpandProperty PathName
     $SQLServerFWProgram = $SQLServerFWProgram -replace " -s$InstanceName", ""
     $SQLServerFWProgram = $SQLServerFWProgram -replace '"', ''
 
@@ -109,7 +109,7 @@ if ($AddFirewallRules) {
     } catch {
         Write-Host " ->Adding firewall rule 'SQL Server Browser service'."
         #Get path of SQL Server Browser executable
-        $SQLServerBrowserFWProgram = Get-WmiObject -Class win32_service -Filter "DisplayName = 'SQL Server Browser'" | Select-object -ExpandProperty PathName
+        $SQLServerBrowserFWProgram = Get-WmiObject -Class win32_service -Filter "DisplayName = 'SQL Server Browser'" | Select-Object -ExpandProperty PathName
         $SQLServerBrowserFWProgram = $SQLServerBrowserFWProgram -replace '"', ''
         $SQLServerBrowserFWDescription = "Inbound rule for SQL Server Browser service to allow connections to UDP port 1434"
         New-NetFirewallRule -DisplayName "SQL Server Browser service" -Description $SQLServerBrowserFWDescription -Direction Inbound -Program $SQLServerBrowserFWProgram -LocalPort 1434 -Protocol UDP -Action Allow | Out-Null
