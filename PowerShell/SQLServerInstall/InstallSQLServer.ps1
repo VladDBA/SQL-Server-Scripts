@@ -192,7 +192,7 @@ param(
 )
 
 #Get script path
-$ScriptPath = split-path -parent $MyInvocation.MyCommand.Definition
+$ScriptPath = Split-Path -Parent $MyInvocation.MyCommand.Definition
 
 ##Handling Input
 # If trailing backslash, remove it so it doesn't mess with the paths in the config file
@@ -261,11 +261,11 @@ if ($AutoMaxMemory) {
 ##Handling internal variables
 #Getting the version based on the config file name
 if ($InstanceName -eq "MSSQLSERVER") {
-	$ConfigTemplateName = Get-ChildItem -Path $ScriptPath -name *_DefaultInstTemplate.ini
+	$ConfigTemplateName = Get-ChildItem -Path $ScriptPath -Name *_DefaultInstTemplate.ini
 	$Version = $ConfigTemplateName -replace "_DefaultInstTemplate.ini", ""
 } else {
 
-	$ConfigTemplateName = Get-ChildItem -Path $ScriptPath -name *_NamedInstTemplate.ini
+	$ConfigTemplateName = Get-ChildItem -Path $ScriptPath -Name *_NamedInstTemplate.ini
 	$Version = $ConfigTemplateName -replace "_NamedInstTemplate.ini", ""
 }
 
@@ -302,7 +302,7 @@ if ($ServiceName -eq "SQL Server ($InstanceName)") {
 	Write-Host " An instance named $InstanceName is already installed on this machine!" -Fore Red
 	Write-Host " ->Canceling installation."
 	Read-Host -Prompt "Press Enter to end script execution."
-	Exit
+	exit
 }
 
 #Check if there's a leftover directory from a previous instance with the same name
@@ -320,7 +320,7 @@ if (Test-Path $InstancePath) {
 		} catch {
 			Write-Host " ->Failed to rename the directory" -fore Red
 			Read-Host -Prompt "Press Enter to end script execution."
-			Exit
+			exit
 		}
 	}
 		
@@ -354,22 +354,22 @@ if ($CoreCount -gt 8) {
 
 #If user db and/or tempdb and/or backup paths are different than $InstanceRootDir 
 #they'll need to be created otherwise the install errors out
-if (($InstanceRootDir -ne $BackupRootDir) -and (!(Test-Path  "$BackupRootDir\$InstanceName\Backup"))) {
+if (($InstanceRootDir -ne $BackupRootDir) -and (!(Test-Path "$BackupRootDir\$InstanceName\Backup"))) {
 	New-Item -ItemType "directory" -Path "$BackupRootDir\$InstanceName\Backup" | Out-Null
 }
-if (($InstanceRootDir -ne $UserDataRootDir) -and (!(Test-Path  "$UserDataRootDir\$InstanceName\Data"))) {
+if (($InstanceRootDir -ne $UserDataRootDir) -and (!(Test-Path "$UserDataRootDir\$InstanceName\Data"))) {
 	New-Item -ItemType "directory" -Path "$UserDataRootDir\$InstanceName\Data" | Out-Null
 }
 
-if (($InstanceRootDir -ne $UserTLogRootDir) -and (!(Test-Path  "$UserTLogRootDir\$InstanceName\TLog"))) {
+if (($InstanceRootDir -ne $UserTLogRootDir) -and (!(Test-Path "$UserTLogRootDir\$InstanceName\TLog"))) {
 	New-Item -ItemType "directory" -Path "$UserTLogRootDir\$InstanceName\TLog" | Out-Null
 }
 
-if (($InstanceRootDir -ne $TempdbDataRootDir) -and (!(Test-Path  "$TempdbDataRootDir\$InstanceName\TempDB"))) {
+if (($InstanceRootDir -ne $TempdbDataRootDir) -and (!(Test-Path "$TempdbDataRootDir\$InstanceName\TempDB"))) {
 	New-Item -ItemType "directory" -Path "$TempdbDataRootDir\$InstanceName\TempDB" | Out-Null
 }
 
-if (($InstanceRootDir -ne $TempdbTLogRootDir) -and (!(Test-Path  "$TempdbTLogRootDir\$InstanceName\TLog"))) {
+if (($InstanceRootDir -ne $TempdbTLogRootDir) -and (!(Test-Path "$TempdbTLogRootDir\$InstanceName\TLog"))) {
 	New-Item -ItemType "directory" -Path "$TempdbTLogRootDir\$InstanceName\TLog" | Out-Null
 }
 
@@ -453,7 +453,7 @@ $Env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine")
 
 $TestQuery = "SET NOCOUNT ON;`nSELECT 'XYZ';`nGO"
 #Waiting for the instance to get out of single user mode 
-[string]$sqlcmdOut = sqlcmd -S $CmdInstance -U sa -P $saPwd -Q $TestQuery -x  2>&1 | Out-String
+[string]$sqlcmdOut = sqlcmd -S $CmdInstance -U sa -P $saPwd -Q $TestQuery -x 2>&1 | Out-String
 #cleanup output noise
 $sqlcmdOut = $sqlcmdOut -replace " ", ""
 $sqlcmdOut = $sqlcmdOut -replace "-", ""
@@ -461,20 +461,20 @@ $sqlcmdOut = $sqlcmdOut -replace "`r`n", ""
 while ($sqlcmdOut -ne "XYZ") {
 	Write-Host " The instance is not connectable yet - waiting 20 seconds..."
 	Start-Sleep -Seconds 20
-	[string]$sqlcmdOut = sqlcmd -S $CmdInstance -U sa -P $saPwd -Q $TestQuery -x  2>&1 | Out-String
+	[string]$sqlcmdOut = sqlcmd -S $CmdInstance -U sa -P $saPwd -Q $TestQuery -x 2>&1 | Out-String
 	$sqlcmdOut = $sqlcmdOut -replace " ", ""
 	$sqlcmdOut = $sqlcmdOut -replace "-", ""
 	$sqlcmdOut = $sqlcmdOut -replace "`r`n", ""
 }
 
-[string]$sqlcmdOut = sqlcmd -S $CmdInstance -U sa -P $saPwd -Q $InstanceConfigTweaks -x  2>&1 | Out-String
+[string]$sqlcmdOut = sqlcmd -S $CmdInstance -U sa -P $saPwd -Q $InstanceConfigTweaks -x 2>&1 | Out-String
 #Cleaning up the output
 $sqlcmdOut = $sqlcmdOut -replace ". Run the RECONFIGURE statement to install" , ""
 Write-Host $sqlcmdOut
 
 if (!([string]::IsNullOrEmpty($CustomScript))) {
 	Write-Host " Running custom script..."
-	$sqlcmdOut = sqlcmd -S $CmdInstance -U sa -P $saPwd -i "$CustomScript" -x  2>&1 | Out-String
+	$sqlcmdOut = sqlcmd -S $CmdInstance -U sa -P $saPwd -i "$CustomScript" -x 2>&1 | Out-String
 	#Not cleaning up this string
 	Write-Host $sqlcmdOut
 }
@@ -482,7 +482,7 @@ if (!([string]::IsNullOrEmpty($CustomScript))) {
 Write-Host " Instance configuration finished." -Fore Green
 $CUPath = $ScriptPath + "\CUInstallKit"
 try {
-	$CUKit = Get-ChildItem -Path $CUPath -name SQLServer$Version-KB*-x64.exe | Sort-Object -Descending | Select-Object -first 1
+	$CUKit = Get-ChildItem -Path $CUPath -Name SQLServer$Version-KB*-x64.exe | Sort-Object -Descending | Select-Object -First 1
 } catch {
 	Write-Host " Patch kit not found, skipping instance patching."
 }
@@ -528,7 +528,7 @@ if ($AddFirewallRules) {
 	Write-Host " Adding firewall rules..."
 	Write-Host " ->Adding firewall rule 'SQL Server $InstanceName'."
 	#Get path of SQL Server executable for this instance
-	$SQLServerFWProgram = Get-WmiObject -Class win32_service -Filter "DisplayName = 'SQL Server ($InstanceName)'" | Select-object -ExpandProperty PathName
+	$SQLServerFWProgram = Get-WmiObject -Class win32_service -Filter "DisplayName = 'SQL Server ($InstanceName)'" | Select-Object -ExpandProperty PathName
 	$SQLServerFWProgram = $SQLServerFWProgram -replace " -s$InstanceName", ""
 	$SQLServerFWProgram = $SQLServerFWProgram -replace '"', ''
 
@@ -549,7 +549,7 @@ if ($AddFirewallRules) {
 		Write-Host " ->Adding firewall rule 'SQL Server Browser service'."
 		$BrowserRuleExists = 'N'
 		#Get path of SQL Server Browser executable
-		$SQLServerBrowserFWProgram = Get-WmiObject -Class win32_service -Filter "DisplayName = 'SQL Server Browser'" | Select-object -ExpandProperty PathName
+		$SQLServerBrowserFWProgram = Get-WmiObject -Class win32_service -Filter "DisplayName = 'SQL Server Browser'" | Select-Object -ExpandProperty PathName
 		$SQLServerBrowserFWProgram = $SQLServerBrowserFWProgram -replace '"', ''
 		$SQLServerBrowserFWDescription = "Inbound rule for SQL Server Browser service to allow connections to UDP port 1434"
 		New-NetFirewallRule -DisplayName "SQL Server Browser service" -Description $SQLServerBrowserFWDescription -Direction Inbound -Program $SQLServerBrowserFWProgram -LocalPort 1434 -Protocol UDP -Action Allow | Out-Null
@@ -572,7 +572,7 @@ if ($InstallSSMS) {
 		Write-Host " ->SSMS 19 or newer is not installed, installing it now..."
 		$SSMSPath = $ScriptPath + "\SSMSInstallKit"
 		try {
-			$SSMSKit = Get-ChildItem -Path $SSMSPath -name SSMS-Setup*.exe | Sort-Object -Descending | Select-Object -first 1
+			$SSMSKit = Get-ChildItem -Path $SSMSPath -Name SSMS-Setup*.exe | Sort-Object -Descending | Select-Object -First 1
 		} catch {
 			Write-Host " SSMS kit not found, skipping SSMS installation."
 		}
