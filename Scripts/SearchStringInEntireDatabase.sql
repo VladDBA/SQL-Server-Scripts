@@ -3,7 +3,7 @@
 	By Vlad Drumea
 	From: https://github.com/VladDBA/SQL-Server-Scripts/
 	Blog: https://vladdba.com/
-  More info about this script: https://vladdba.com/2023/12/13/script-to-search-for-a-string-in-an-entire-sql-server-database/
+	More info about this script: https://vladdba.com/2023/12/13/script-to-search-for-a-string-in-an-entire-sql-server-database/
 	License: https://github.com/VladDBA/SQL-Server-Scripts/blob/main/LICENSE.md
 */
 
@@ -53,43 +53,44 @@ WITH QueryParts AS
 		  /*Build the WHERE clause*/
             SELECT N'OR ' + 
 			CASE
-              WHEN DATA_TYPE LIKE N'%text'
+              WHEN c.DATA_TYPE LIKE N'%text'
               THEN N'CAST('
               ELSE N''
-              END +
+            END +
             CASE 
 			 WHEN @CaseSensitive = 1 
 			 THEN N'LOWER('+ QUOTENAME(c.COLUMN_NAME) + N')'
 			 ELSE  QUOTENAME(c.COLUMN_NAME)
 			END +
             CASE
-              WHEN DATA_TYPE = N'ntext'
+              WHEN c.DATA_TYPE = N'ntext'
               THEN N' AS NVARCHAR(MAX))'
-              WHEN DATA_TYPE = N'text'
+              WHEN c.DATA_TYPE = N'text'
               THEN N' AS VARCHAR(MAX))'
               ELSE N''
-              END +
+            END +
 			CASE
-			WHEN @UseLike = 1
-			 THEN N' LIKE '+
+              /*only use LIKE when the column is wider than the string*/
+			  WHEN @UseLike = 1 AND c.CHARACTER_MAXIMUM_LENGTH > LEN(@SearchString)
+			  THEN N' LIKE '+
 			  CASE
-			   WHEN @IsUnicode = 1 AND DATA_TYPE LIKE N'n%'
-			   THEN N'N'
-			   ELSE N''
-			   END +
+			    WHEN @IsUnicode = 1 AND c.DATA_TYPE LIKE N'n%'
+			    THEN N'N'
+			    ELSE N''
+			  END +
 			  N'''%' + @SearchString + N'%'' '
 			  ELSE N' = '+
 			  CASE
-			   WHEN @IsUnicode = 1 AND DATA_TYPE LIKE N'n%'
+			   WHEN @IsUnicode = 1 AND c.DATA_TYPE LIKE N'n%'
 			   THEN N'N'
 			   ELSE N''
-			   END + N'''' + @SearchString + N''' '
+			  END + N'''' + @SearchString + N''' '
 			 END
             FROM INFORMATION_SCHEMA.COLUMNS AS c
             WHERE c.TABLE_CATALOG=t.TABLE_CATALOG AND c.TABLE_SCHEMA=t.TABLE_SCHEMA AND c.TABLE_NAME=t.TABLE_NAME
-              AND (DATA_TYPE LIKE N'%char' OR DATA_TYPE LIKE N'%text')
+              AND (c.DATA_TYPE LIKE N'%char' OR c.DATA_TYPE LIKE N'%text')
 			  /*Only search in columns that can actually hold a string the length of the search term*/
-			  AND CHARACTER_MAXIMUM_LENGTH >= LEN(@SearchString)
+			  AND c.CHARACTER_MAXIMUM_LENGTH >= LEN(@SearchString)
             FOR XML PATH('')
           ),1,3,'') AS [WhereClause]
     FROM INFORMATION_SCHEMA.TABLES AS t
@@ -116,11 +117,9 @@ WHILE @@FETCH_STATUS = 0
         @ParamDef,
         @RecordCountOut= @RecordCount OUTPUT;
 
-      PRINT CAST(@RecordCount AS NVARCHAR(10))
-            + ' records found in table ' + @TableName
-
       IF @RecordCount > 0
         BEGIN
+            RAISERROR ('%d matching records found in table %s .',10,1,@RecordCount,@TableName) WITH NOWAIT;
             INSERT INTO #SearchResults
                         ([TableName],
                          [SearchString],
@@ -130,11 +129,10 @@ WHILE @@FETCH_STATUS = 0
                          @SearchString,
                          @RecordCount,
                          @WhereClause);
-        END
+        END;
 
       FETCH NEXT FROM SearchDB INTO @TableName, @WhereClause;
-  END
-
+  END;
 CLOSE SearchDB;
 DEALLOCATE SearchDB;
 /*Get the summary*/
@@ -146,10 +144,8 @@ SELECT [TableName],
 FROM   #SearchResults
 ORDER  BY [RecordsFound] ASC;
 /*Query the identified tables to get specific records*/
-PRINT @LineFeed
-      + 'Retrieving results from tables';
-
-SET @SQL = N'';
+RAISERROR ('%sRetrieving results from tables.',10,1,@LineFeed) WITH NOWAIT;
+SET @SQL = CAST(N' '+@LineFeed AS NVARCHAR(MAX));
 SELECT @SQL += REPLACE([Query], N'SELECT ', N'SELECT '''+REPLACE(REPLACE([TableName], ']', ''), '[', '')+N''' AS TableName, ')
                + @LineFeed
 FROM   #SearchResults
