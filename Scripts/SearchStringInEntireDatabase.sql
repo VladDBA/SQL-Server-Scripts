@@ -119,7 +119,7 @@ WHILE @@FETCH_STATUS = 0
 
       IF @RecordCount > 0
         BEGIN
-            RAISERROR ('%d matching records found in table %s .',10,1,@RecordCount,@TableName) WITH NOWAIT;
+            RAISERROR ('%d matching records found in table %s.',10,1,@RecordCount,@TableName) WITH NOWAIT;
             INSERT INTO #SearchResults
                         ([TableName],
                          [SearchString],
