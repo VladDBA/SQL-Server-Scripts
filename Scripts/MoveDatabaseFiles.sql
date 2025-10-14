@@ -50,7 +50,7 @@ DECLARE @FileTypes TABLE
 
 SET @PreHeader = @LineFeed + REPLICATE(' ', 10)
 /*Clean input*/
-SET @DatabaseName = LTRIM(RTRIM(@DatabaseName));
+SET @DatabaseName = LTRIM(RTRIM(PARSENAME(@DatabaseName,1)));
 SET @DataDestination = LTRIM(RTRIM(@DataDestination));
 SET @TLogDestination = LTRIM(RTRIM(@TLogDestination));
 
@@ -85,7 +85,7 @@ INSERT INTO @FileTypes
 VALUES      (0,@DataDestination),
             (1,@TLogDestination);
 
-/*Are we moving only data files or only tlg files?*/
+/*Are we moving only data files or only tlog files?*/
 IF( @DataDestination = N'\' )
   BEGIN
       /*Not moving data files*/
@@ -106,8 +106,8 @@ IF( @DatabaseName <> N'tempdb' )
       PRINT @PreHeader + N'/*   Run in SSMS   */'
 
       SET @Command = N'USE [master]' + @LineFeed + N'GO' + @LineFeed;
-      SET @Command += N'ALTER DATABASE [' + @DatabaseName
-                      + N'] SET OFFLINE WITH ROLLBACK IMMEDIATE;';
+      SET @Command += N'ALTER DATABASE ' + QUOTENAME(@DatabaseName)
+                      + N' SET OFFLINE WITH ROLLBACK IMMEDIATE;';
       SET @Command +=@LineFeed + N'GO' + @LineFeed;
 
       PRINT @Command
@@ -158,9 +158,9 @@ IF @DatabaseName = N'tempdb'
 
       SELECT @Command = N'USE [master]' + @LineFeed + N'GO' + @LineFeed;
 
-      SELECT @Command +=  N'ALTER DATABASE [' + @DatabaseName
-                         + N'] MODIFY FILE (NAME = [' + [f].[name]
-                         + N'],' + N' FILENAME = '''
+      SELECT @Command +=  N'ALTER DATABASE ' + QUOTENAME(@DatabaseName)
+                         + N' MODIFY FILE (NAME = ' + QUOTENAME([f].[name])
+                         + N', FILENAME = '''
                          + CASE
                              WHEN [type] = 1
                                   AND @TLogDestination <> N'\' THEN @TLogDestination
@@ -217,9 +217,9 @@ ELSE
       /*Update path in metadata*/
       SELECT @Command = N'USE [master]' + @LineFeed + N'GO' + @LineFeed;
 
-      SELECT @Command += N'ALTER DATABASE [' + @DatabaseName
-                         + N'] MODIFY FILE (NAME = [' + [f].[name]
-                         + N'],' + N' FILENAME = '''
+      SELECT @Command += N'ALTER DATABASE ' + QUOTENAME(@DatabaseName)
+                         + N' MODIFY FILE (NAME = ' + QUOTENAME([f].[name])
+                         + N', FILENAME = '''
                          + CASE
                              WHEN [type] = 1
                                   AND @TLogDestination <> N'\' THEN @TLogDestination
@@ -235,8 +235,8 @@ ELSE
 
       PRINT @Command;
 
-      SET @Command = N'ALTER DATABASE [' + @DatabaseName
-                     + N'] SET ONLINE;' + @LineFeed + N'GO' + @LineFeed
+      SET @Command = N'ALTER DATABASE ' + QUOTENAME(@DatabaseName)
+                     + N' SET ONLINE;' + @LineFeed + N'GO' + @LineFeed
                      + @LineFeed
                      + 'SELECT [name], [state_desc] ' + @LineFeed
                      + N' FROM [sys].[databases]' + @LineFeed
