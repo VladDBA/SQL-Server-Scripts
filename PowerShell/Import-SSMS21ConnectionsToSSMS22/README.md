@@ -38,14 +38,6 @@ This PowerShell script imports saved connections from **SQL Server Management St
 
 ---
 
-## Example
-
-```powershell
-PS C:\> .\Import-SSMS21ConnectionsToSSMS22.ps1
-```
-
----
-
 ## Notes
 
 - **Backup Files**: The script creates backup copies of the `privateregistry.bin` file before making changes. This is stored in the same directory as the original SSMS 22 file with a `.bak` extension.
