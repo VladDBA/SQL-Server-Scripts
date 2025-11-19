@@ -39,6 +39,24 @@ $MountPoint = 'HKEY_LOCAL_MACHINE\SSMSStuff'
 # where SSMS 21 and 22 related configuration folders live
 $SSMSRoot = Join-Path -Path $env:LOCALAPPDATA -ChildPath 'Microsoft\SSMS'
 
+# a little helper function to invoke reg.exe commands
+function Invoke-Reg {
+    param(
+        [Parameter(Mandatory)][string] $Command,
+        [Parameter(Mandatory)][string[]] $Arguments
+    )
+    $argsLine = $Arguments -join ' '
+    $proc = Start-Process -FilePath 'reg.exe' -ArgumentList $Command, $argsLine `
+        -NoNewWindow -PassThru -Wait -RedirectStandardError err.txt
+    if ($proc.ExitCode -ne 0) {
+        $err = Get-Content -Path err.txt -Raw
+        Remove-Item err.txt -Force
+        throw "reg $Command $argsLine failed (Exit $($proc.ExitCode)): $err"
+        exit
+    }
+    Remove-Item err.txt -Force
+}
+
 # use sdk.txt to figure out which folders belong to GA versions (not previews)
 $MatchingDirs = Get-ChildItem -Path $SSMSRoot -Directory |
 Where-Object {
@@ -90,24 +108,6 @@ foreach ($h in @($Hive21, $Hive22)) {
             Write-Host " Backup created at:`n  $h.bak" -Fore Green
         }
     }
-}
-
-# a little helper function to invoke reg.exe commands
-function Invoke-Reg {
-    param(
-        [Parameter(Mandatory)][string] $Command,
-        [Parameter(Mandatory)][string[]] $Arguments
-    )
-    $argsLine = $Arguments -join ' '
-    $proc = Start-Process -FilePath 'reg.exe' -ArgumentList $Command, $argsLine `
-        -NoNewWindow -PassThru -Wait -RedirectStandardError err.txt
-    if ($proc.ExitCode -ne 0) {
-        $err = Get-Content -Path err.txt -Raw
-        Remove-Item err.txt -Force
-        throw "reg $Command $argsLine failed (Exit $($proc.ExitCode)): $err"
-        exit
-    }
-    Remove-Item err.txt -Force
 }
 
 # Dude, where's my desktop?
