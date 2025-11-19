@@ -6,16 +6,16 @@
     privateregistry.bin file to the SSMS 22 one.
 
 .NOTES
-    • Requires admin rights.
-    • Works only if both SSMS 21 and SSMS 22 are installed side-by-side (aka on the same machine).
-    • Backs up the SSMS 22 privateregistry.bin file before making any changes.
+    - Requires admin rights.
+    - Works only if both SSMS 21 and SSMS 22 are installed side-by-side (aka on the same machine).
+    - Backs up the SSMS 22 privateregistry.bin file before making any changes.
 
- Author: Vlad Drumea (VladDBA)
- Website: https://vladdba.com
- Date: November 17, 2025
+  Author: Vlad Drumea (VladDBA)
+  Website: https://vladdba.com
+  Date: November 17, 2025
 
 .LINK
- https://vladdba.com/2025/11/17/import-saved-connections-from-ssms-21-to-ssms-22/  
+    For more information, visit: https://vladdba.com/2025/11/17/import-saved-connections-from-ssms-21-to-ssms-22/  
  
 .EXAMPLE
     PS C:\> .\Import-SSMS21ConnectionsToSSMS22.ps1
