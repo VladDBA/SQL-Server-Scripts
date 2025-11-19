@@ -115,6 +115,10 @@ $DesktopPath = [Environment]::GetFolderPath('Desktop')
 $RegFilePath = Join-Path -Path $DesktopPath -ChildPath $RegFileName
 # have a quoted path for reg.exe
 $RegFilePathSafe = '"' + $RegFilePath + '"'
+# remove existing .reg file if present
+if ( Test-Path $RegFilePath) {
+    Remove-Item -Path $RegFilePath -Force
+}
 try {
     # load hive, export key, unload hive
     Write-Host "`n Loading SSMS 21 hive..."
