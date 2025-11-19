@@ -113,6 +113,8 @@ foreach ($h in @($Hive21, $Hive22)) {
 # Dude, where's my desktop?
 $DesktopPath = [Environment]::GetFolderPath('Desktop')
 $RegFilePath = Join-Path -Path $DesktopPath -ChildPath $RegFileName
+# have a quoted path for reg.exe
+$RegFilePathSafe = '"' + $RegFilePath + '"'
 
 # load hive, export key, unload hive
 Write-Host "`n Loading SSMS 21 hive..."
@@ -122,7 +124,7 @@ $ExportPath = "$MountPoint\Software\Microsoft\SSMS\$FName21\ConnectionMruList"
 Write-Host " Exporting $RegFileName to Desktop..."
 Invoke-Reg -Command 'export' -Arguments @(
     $ExportPath,
-    $RegFilePath,
+    $RegFilePathSafe,
     '/reg:64'
 )
 
@@ -148,7 +150,7 @@ Write-Host "`n Loading SSMS 22 hive..."
 Invoke-Reg -Command 'load' -Arguments @($MountPoint, $Hive22)
 
 Write-Host " Importing $RegFileName into SSMS 22 hive..."
-Invoke-Reg -Command 'import' -Arguments @($RegFilePath)
+Invoke-Reg -Command 'import' -Arguments @($RegFilePathSafe)
 
 # Unload SSMS 22 hive and finish up
 Write-Host " Unloading SSMS 22 hive..."
