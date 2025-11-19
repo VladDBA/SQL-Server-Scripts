@@ -35,6 +35,7 @@ $BinFile = 'privateregistry.bin'
 $RegFileName = 'SSMS21_ConnectionMruList.reg'
 # both hives will be mounted under this mount point
 $MountPoint = 'HKEY_LOCAL_MACHINE\SSMSStuff'
+$MountPointTest = 'HKLM:\SSMSStuff'
 
 # where SSMS 21 and 22 related configuration folders live
 $SSMSRoot = Join-Path -Path $env:LOCALAPPDATA -ChildPath 'Microsoft\SSMS'
@@ -52,7 +53,6 @@ function Invoke-Reg {
         $err = Get-Content -Path err.txt -Raw
         Remove-Item err.txt -Force
         throw "reg $Command $argsLine failed (Exit $($proc.ExitCode)): $err"
-        exit
     }
     Remove-Item err.txt -Force
 }
@@ -82,9 +82,9 @@ foreach ($dir in $MatchingDirs) {
         $Folder21 = $dir 
         $FName21 = $leaf
     } elseif ($leaf -match '^22\.0_') {
-         $Folder22 = $dir 
-         $FName22 = $leaf
-        }
+        $Folder22 = $dir 
+        $FName22 = $leaf
+    }
 }
 
 if (-not $Folder21 -or -not $Folder22) {
@@ -115,53 +115,67 @@ $DesktopPath = [Environment]::GetFolderPath('Desktop')
 $RegFilePath = Join-Path -Path $DesktopPath -ChildPath $RegFileName
 # have a quoted path for reg.exe
 $RegFilePathSafe = '"' + $RegFilePath + '"'
+try {
+    # load hive, export key, unload hive
+    Write-Host "`n Loading SSMS 21 hive..."
+    Invoke-Reg -Command 'load' -Arguments @($MountPoint, $Hive21) -ErrorAction Stop
 
-# load hive, export key, unload hive
-Write-Host "`n Loading SSMS 21 hive..."
-Invoke-Reg -Command 'load' -Arguments @($MountPoint, $Hive21)
+    $ExportPath = "$MountPoint\Software\Microsoft\SSMS\$FName21\ConnectionMruList"
+    Write-Host " Exporting $RegFileName to Desktop..."
+    Invoke-Reg -Command 'export' -Arguments @(
+        $ExportPath,
+        $RegFilePathSafe,
+        '/reg:64'
+    ) -ErrorAction Stop
 
-$ExportPath = "$MountPoint\Software\Microsoft\SSMS\$FName21\ConnectionMruList"
-Write-Host " Exporting $RegFileName to Desktop..."
-Invoke-Reg -Command 'export' -Arguments @(
-    $ExportPath,
-    $RegFilePathSafe,
-    '/reg:64'
-)
+    Write-Host " Unloading SSMS 21 hive..."
+    Invoke-Reg -Command 'unload' -Arguments @($MountPoint) -ErrorAction Stop
 
-Write-Host " Unloading SSMS 21 hive..."
-Invoke-Reg -Command 'unload' -Arguments @($MountPoint)
+    # read the exported .rg file, get entries count, and replace the old path with the new one
+    $RegContents = Get-Content -Path $RegFilePath -Raw
+    $Pattern = '"ConnectionName\d*"\s*='
+    $ConnCount = ([regex]::Matches($RegContents, $Pattern, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)).Count
 
-# read the exported .rg file, get entries count, and replace the old path with the new one
-$RegContents = Get-Content -Path $RegFilePath -Raw
-$Pattern = '"ConnectionName\d*"\s*='
-$ConnCount = ([regex]::Matches($RegContents, $Pattern, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)).Count
+    Write-Host "`n Found $ConnCount connection entries in the exported $RegFileName file." -Fore Green
 
-Write-Host "`n Found $ConnCount connection entries in the exported $RegFileName file." -Fore Green
+    $OldRegPath = "$MountPoint\Software\Microsoft\SSMS\$FName21\ConnectionMruList"
+    $NewRegPath = "$MountPoint\Software\Microsoft\SSMS\$FName22\ConnectionMruList"
+    # Replace the old path with the new one (Unicode/UTF‑16LE required for .reg files)
+    Write-Host " Updating $RegFileName..."
+    $RegContents = $RegContents -replace [regex]::Escape($OldRegPath), $NewRegPath
+    $RegContents | Set-Content -Path $RegFilePath -Encoding Unicode
 
-$OldRegPath = "$MountPoint\Software\Microsoft\SSMS\$FName21\ConnectionMruList"
-$NewRegPath = "$MountPoint\Software\Microsoft\SSMS\$FName22\ConnectionMruList"
-# Replace the old path with the new one (Unicode/UTF‑16LE required for .reg files)
-Write-Host " Updating $RegFileName..."
-$RegContents = $RegContents -replace [regex]::Escape($OldRegPath), $NewRegPath
-$RegContents | Set-Content -Path $RegFilePath -Encoding Unicode
+    # load SSMS 22 hive and import edited .reg file
+    Write-Host "`n Loading SSMS 22 hive..."
+    Invoke-Reg -Command 'load' -Arguments @($MountPoint, $Hive22) -ErrorAction Stop
 
-# load SSMS 22 hive and import edited .reg file
-Write-Host "`n Loading SSMS 22 hive..."
-Invoke-Reg -Command 'load' -Arguments @($MountPoint, $Hive22)
+    Write-Host " Importing $RegFileName into SSMS 22 hive..."
+    Invoke-Reg -Command 'import' -Arguments @($RegFilePathSafe) -ErrorAction Stop
 
-Write-Host " Importing $RegFileName into SSMS 22 hive..."
-Invoke-Reg -Command 'import' -Arguments @($RegFilePathSafe)
+    # Unload SSMS 22 hive and finish up
+    Write-Host " Unloading SSMS 22 hive..."
+    Invoke-Reg -Command 'unload' -Arguments @($MountPoint) -ErrorAction Stop
+    Remove-Item -Path $RegFilePath -Force
 
-# Unload SSMS 22 hive and finish up
-Write-Host " Unloading SSMS 22 hive..."
-Invoke-Reg -Command 'unload' -Arguments @($MountPoint)
-Remove-Item -Path $RegFilePath -Force
-
-# that's all, folks
-Write-Host "`n All operations completed successfully." -Fore Green
-Write-Host " Start SSMS 22 and verify that your SSMS 21 connections have been imported."
-Write-Host " If everything looks good, you can delete the backup file."
-Write-Host "`n If you encounter any issues:`n  1. Close SSMS 22 `n  2. Restore SSMS 22's original $BinFile file using the following commands:"
-Write-Host "      Remove-Item -Path `"$Hive22`" -Force" -Fore Yellow
-Write-Host "      Copy-Item -Path `"$Hive22.bak`" ```n      -Destination `"$Hive22`" -Force" -Fore Yellow
-Write-Host "  3. Restart SSMS 22."
+    # that's all, folks
+    Write-Host "`n All operations completed successfully." -Fore Green
+    Write-Host " Start SSMS 22 and verify that your SSMS 21 connections have been imported."
+    Write-Host " If everything looks good, you can delete the backup file."
+    Write-Host "`n If you encounter any issues:`n  1. Close SSMS 22 `n  2. Restore SSMS 22's original $BinFile file using the following commands:"
+    Write-Host "      Remove-Item -Path `"$Hive22`" -Force" -Fore Yellow
+    Write-Host "      Copy-Item -Path `"$Hive22.bak`" ```n      -Destination `"$Hive22`" -Force" -Fore Yellow
+    Write-Host "  3. Restart SSMS 22."
+} catch {
+    Write-Host " Something went wrong: $_" -ForegroundColor Red
+    # Attempt to unload any loaded hive
+    if ( Test-Path $MountPointTest ) {
+        Write-Host " Attempting to unload loaded hive..."
+        try {
+            Invoke-Reg -Command 'unload' -Arguments @($MountPoint) -ErrorAction Stop
+            Write-Host " Hive unloaded successfully." -ForegroundColor Green
+        } catch {
+            Write-Host " Failed to unload hive: $_" -ForegroundColor Red
+            Write-Host " You may need to unload $MountPoint manually using Registry Editor." -ForegroundColor Red
+        }
+    }
+} 
