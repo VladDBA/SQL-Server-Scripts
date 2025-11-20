@@ -40,6 +40,10 @@ $MountPointTest = 'HKLM:\SSMSStuff'
 # where SSMS 21 and 22 related configuration folders live
 $SSMSRoot = Join-Path -Path $env:LOCALAPPDATA -ChildPath 'Microsoft\SSMS'
 
+if (-not (Test-Path -Path $SSMSRoot)) {
+    throw "The SSMS root directory ($SSMSRoot) does not exist. Ensure SSMS is installed."
+}
+
 # a little helper function to invoke reg.exe commands
 function Invoke-Reg {
     param(
@@ -89,7 +93,6 @@ foreach ($dir in $MatchingDirs) {
 
 if (-not $Folder21 -or -not $Folder22) {
     throw "Unable to determine which folder is 21 and which is 22. Detected folders:`n$($MatchingDirs -join "`n")"
-    exit
 }
 
 # construct full paths to the privateregistry.bin files
@@ -103,7 +106,6 @@ $Hive22Safe = '"' + $Hive22 + '"'
 foreach ($h in @($Hive21, $Hive22)) {
     if (-not (Test-Path $h -PathType Leaf)) {
         throw "Hive file not found: $h"
-        exit
     } else {
         Write-Host " Found hive file:`n  $h" -Fore Green
         if ($h -eq $Hive22) {
