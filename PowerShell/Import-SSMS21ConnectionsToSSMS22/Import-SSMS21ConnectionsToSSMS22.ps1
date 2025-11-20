@@ -95,6 +95,9 @@ if (-not $Folder21 -or -not $Folder22) {
 # construct full paths to the privateregistry.bin files
 $Hive21 = Join-Path -Path $Folder21 -ChildPath $BinFile
 $Hive22 = Join-Path -Path $Folder22 -ChildPath $BinFile
+#in case of sapces, quote the paths
+$Hive21 = '"' + $Hive21 + '"'
+$Hive22 = '"' + $Hive22 + '"'
 
 # Verify the hive files exist and back them up
 foreach ($h in @($Hive21, $Hive22)) {
