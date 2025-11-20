@@ -95,9 +95,9 @@ if (-not $Folder21 -or -not $Folder22) {
 # construct full paths to the privateregistry.bin files
 $Hive21 = Join-Path -Path $Folder21 -ChildPath $BinFile
 $Hive22 = Join-Path -Path $Folder22 -ChildPath $BinFile
-#in case of sapces, quote the paths
-$Hive21 = '"' + $Hive21 + '"'
-$Hive22 = '"' + $Hive22 + '"'
+#in case of sapces, quote the paths for reg.exe
+$Hive21Safe = '"' + $Hive21 + '"'
+$Hive22Safe = '"' + $Hive22 + '"'
 
 # Verify the hive files exist and back them up
 foreach ($h in @($Hive21, $Hive22)) {
@@ -125,7 +125,7 @@ if ( Test-Path $RegFilePath) {
 try {
     # load hive, export key, unload hive
     Write-Host "`n Loading SSMS 21 hive..."
-    Invoke-Reg -Command 'load' -Arguments @($MountPoint, $Hive21) -ErrorAction Stop
+    Invoke-Reg -Command 'load' -Arguments @($MountPoint, $Hive21Safe) -ErrorAction Stop
 
     $ExportPath = "$MountPoint\Software\Microsoft\SSMS\$FName21\ConnectionMruList"
     Write-Host " Exporting $RegFileName to Desktop..."
@@ -154,7 +154,7 @@ try {
 
     # load SSMS 22 hive and import edited .reg file
     Write-Host "`n Loading SSMS 22 hive..."
-    Invoke-Reg -Command 'load' -Arguments @($MountPoint, $Hive22) -ErrorAction Stop
+    Invoke-Reg -Command 'load' -Arguments @($MountPoint, $Hive22Safe) -ErrorAction Stop
 
     Write-Host " Importing $RegFileName into SSMS 22 hive..."
     Invoke-Reg -Command 'import' -Arguments @($RegFilePathSafe) -ErrorAction Stop
