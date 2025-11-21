@@ -44,6 +44,12 @@ if (-not (Test-Path -Path $SSMSRoot)) {
     throw "The SSMS root directory ($SSMSRoot) does not exist. Ensure SSMS is installed."
 }
 
+# just to make sure SSMS is not running
+while (Get-Process "SSMS" -ErrorAction SilentlyContinue | Where-Object { $_.FileVersion -match '^(21|22)\.' }) {
+    Write-Host " SSMS process detected. Please close all SSMS instances to proceed." -Fore Yellow
+    Read-Host -Prompt "Press Enter after all SSMS 21/22 processes have been closed" 
+}
+
 # a little helper function to invoke reg.exe commands
 function Invoke-Reg {
     param(
@@ -175,16 +181,16 @@ try {
     Write-Host "      Copy-Item -Path `"$Hive22.bak`" ```n      -Destination `"$Hive22`" -Force" -Fore Yellow
     Write-Host "  3. Restart SSMS 22."
 } catch {
-    Write-Host " Something went wrong: $_" -ForegroundColor Red
+    Write-Host " Something went wrong: $_" -Fore Red
     # Attempt to unload any loaded hive
     if ( Test-Path $MountPointTest ) {
         Write-Host " Attempting to unload loaded hive..."
         try {
             Invoke-Reg -Command 'unload' -Arguments @($MountPoint) -ErrorAction Stop
-            Write-Host " Hive unloaded successfully." -ForegroundColor Green
+            Write-Host " Hive unloaded successfully." -Fore Green
         } catch {
-            Write-Host " Failed to unload hive: $_" -ForegroundColor Red
-            Write-Host " You may need to unload $MountPoint manually using Registry Editor." -ForegroundColor Red
+            Write-Host " Failed to unload hive: $_" -Fore Red
+            Write-Host " You may need to unload $MountPoint manually using Registry Editor." -Fore Red
         }
     }
 } 

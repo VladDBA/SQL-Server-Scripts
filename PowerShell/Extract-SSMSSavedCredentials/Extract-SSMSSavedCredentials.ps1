@@ -92,6 +92,13 @@ if ($Confirmation -ne "Y") {
     Write-Host " Operation cancelled by user."
     exit
 }
+
+# just to make sure SSMS is not running
+while (Get-Process "SSMS" -ErrorAction SilentlyContinue | Where-Object { $_.FileVersion -match '^(21|22)\.' }) {
+    Write-Host " SSMS process detected. Please close all SSMS instances to proceed." -Fore Yellow
+    Read-Host -Prompt "Press Enter after all SSMS 21/22 processes have been closed" 
+}
+
 ## internal variables
 $BinFile = 'privateregistry.bin'
 $MountPoint = 'HKEY_LOCAL_MACHINE\SSMSStuff'
@@ -104,7 +111,7 @@ $Entries = @()
 $ConnStrings = @()
 $Credentials = @()
 # output file header
-$ConnStrings += "Connection Name : Connection String"
+$ConnStrings += "Connection Name (how it's displayed in SSMS): Decrypted Connection String"
 
 
 $TotalConnStrings = 0
@@ -249,6 +256,7 @@ foreach ($Folder in $MatchingDirs) {
             if ($ClearText -like "*;Persist Security Info=True*") {
                 $CredentialsCounter++
                 $DataSource = $ClearText -replace ";Persist Security Info=True*.+", ""
+                $DataSource = $DataSource -replace ".*Data Source=", ""
                 $UserID = $ClearText -replace ".*User ID=", "User ID=" -replace ";Password*.+", ""
                 $Pass = $ClearText -replace ".*;Password=", "Password=" -replace ";Pooling=.*", ""
                 $Credentials += "## $DataSource `n     $UserID `n     $Pass"
@@ -278,5 +286,5 @@ foreach ($Folder in $MatchingDirs) {
 $ConnStrings | Set-Content -Path $RawConnStringPath -Encoding Unicode
 $Credentials | Set-Content -Path $CredentialsPath -Encoding Unicode
 Write-Host "`n Decryption complete." -ForegroundColor Green
-Write-Host " Total decrypted connection strings: $TotalConnStrings" -ForegroundColor Green
-Write-Host " Total decrypted credentials: $TotalCredentials" -ForegroundColor Green
+Write-Host " Total extracted connection strings: $TotalConnStrings" -ForegroundColor Green
+Write-Host " Total extracted credentials: $TotalCredentials" -ForegroundColor Green
