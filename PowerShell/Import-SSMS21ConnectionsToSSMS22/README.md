@@ -1,5 +1,9 @@
 # Import-SSMS21ConnectionsToSSMS22.ps1
 
+## Moved to new repo
+
+All updates to this script will be done in my [SSMS-Tools](https://github.com/VladDBA/SSMS-Tools) repository.
+
 ## Overview
 
 This PowerShell script imports saved connections from **SQL Server Management Studio (SSMS) 21** to **SSMS 22** by transferring the `ConnectionMruList` key from the `privateregistry.bin` file of SSMS 21 to SSMS 22. Thus helping you not waste time manually re-adding all your SSMS 21 connections to SSMS 22.
