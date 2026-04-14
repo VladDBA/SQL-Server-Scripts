@@ -518,7 +518,7 @@ CLOSE WordCursor;
 DEALLOCATE WordCursor;
 SELECT @Count = CAST(COUNT(*) AS VARCHAR(10))
 FROM #WordList WITH(NOLOCK )
-PRINT 'Generated '+@Count+' password candidates.';
+RAISERROR ('Generated %d password candidates.', 0, 1, @Count) WITH NOWAIT;
 SELECT @StartTime = GETDATE();
 PRINT 'Validating password candidates against existing hashes...'
 /*Check passwords against the hashes in the sys.sql_logins catalog view*/
