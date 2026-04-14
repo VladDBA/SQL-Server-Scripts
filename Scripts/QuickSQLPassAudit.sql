@@ -10,7 +10,8 @@ SET NOCOUNT ON;
 DECLARE @UseInstInfo   BIT,
         @BaseWordsList NVARCHAR(1200),
         @ReturnFoundPasswords BIT,
-        @KeepPassCandidatesTbl BIT;
+        @KeepPassCandidatesTbl BIT,
+        @BreakAfterCandidatesCreation BIT;
 
 /*List of comma separated custom words spaces are not required*/
 SET @BaseWordsList = N'contoso'; /*Add your custom words here*/
@@ -24,6 +25,10 @@ SET @UseInstInfo = 1;
 SET @ReturnFoundPasswords = 1;
 /*Set this to 1 to not drop the #WordList table at the end of the execution*/
 SET @KeepPassCandidatesTbl = 1;
+/*Set this to 1 to break the execution after the password candidates are generated. 
+  Useful if you want to use a different method to check the passwords against the hashes
+*/
+SET @BreakAfterCandidatesCreation = 0;
 
 
 /*Setting up temp tables*/
