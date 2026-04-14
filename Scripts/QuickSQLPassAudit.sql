@@ -523,7 +523,7 @@ CLOSE WordCursor;
 DEALLOCATE WordCursor;
 SELECT @Count = CAST(COUNT(*) AS VARCHAR(10))
 FROM #WordList WITH(NOLOCK )
-RAISERROR ('Generated %d password candidates.', 0, 1, @Count) WITH NOWAIT;
+RAISERROR ('Generated %s password candidates.', 0, 1, @Count) WITH NOWAIT;
 IF @BreakAfterCandidatesCreation = 1
 BEGIN
        PRINT 'Execution stopped after password candidates generation as requested. You can check the #WordList table for the generated candidates.';
