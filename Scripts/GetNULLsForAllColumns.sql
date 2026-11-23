@@ -64,9 +64,9 @@ WITH cols AS
         [DataType] =
             CASE
                 WHEN t.[name] IN (N'char', N'varchar', N'binary', N'varbinary')
-                    THEN t.[name] + N'(' + CASE WHEN c.[max_length] = -1 THEN N'MAX' ELSE CAST(c.max_length AS NVARCHAR(10)) END + N')'
+                    THEN t.[name] + N'(' + CASE WHEN c.[max_length] = -1 THEN N'max' ELSE CAST(c.max_length AS NVARCHAR(10)) END + N')'
                 WHEN t.[name] IN (N'nchar', N'nvarchar')
-                    THEN t.[name] + N'(' + CASE WHEN c.[max_length] = -1 THEN N'MAX' ELSE CAST(c.max_length / 2 AS NVARCHAR(10)) END + N')'
+                    THEN t.[name] + N'(' + CASE WHEN c.[max_length] = -1 THEN N'max' ELSE CAST(c.max_length / 2 AS NVARCHAR(10)) END + N')'
                 WHEN t.[name] IN (N'decimal', N'numeric')
                     THEN t.[name] + N'(' + CAST(c.[precision] AS NVARCHAR(10)) + N',' + CAST(c.[scale] AS NVARCHAR(10)) + N')'
                 WHEN t.[name] IN (N'datetime2', N'datetimeoffset', N'time')
